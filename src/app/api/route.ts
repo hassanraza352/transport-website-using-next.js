@@ -1,11 +1,29 @@
-import connect from "../../../utils/db";
 
 
-export async function GET(request: Request) {
-  try {
-    await connect();
-    return new Response(JSON.stringify({ message: "Database connected successfully" }), { status: 200 });
-  } catch (err) {
-    return new Response(JSON.stringify({ message: "Database connection failed", err, success: false }), { status: 500 });
-  }
+// health check route
+
+import { NextResponse } from "next/server";
+
+export async function GET(){
+try{
+  return(
+    NextResponse.json({
+        message:"server is running sucessfully",
+        success:true }
+  ,{
+    status:200}
+  )
+)
+
+}
+
+catch(error){
+  NextResponse.json({
+        message:"server is not  running sucessfully",error,
+        success:false }
+  ,{
+    status:500}
+  )
+}
+
 }
