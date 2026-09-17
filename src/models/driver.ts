@@ -1,19 +1,20 @@
 
 import mongoose from "mongoose";
 
-const userSchema = new mongoose.Schema({
+const driverSchema = new mongoose.Schema({
   name:{
     type:String,
     required:true
   },
-    email:{
+    cnicNO:{
     type:String,
     required:true,
     unique:true
   },
-  password:{
+  LicenseNO:{
     type:String,
-    required:true
+    required:true,
+    unique:true
   },
   profilePic:{
     type:String,
@@ -25,14 +26,13 @@ const userSchema = new mongoose.Schema({
   },
   role:{
     type:String,
-    enum:["admin","user","driver"],
-    default:"user"
+    enum:["driver"],
   }
 },{
   timestamps:true
 })
 
-const User = mongoose.models.User || mongoose.model("User", userSchema);
+const Driver = mongoose.models.Driver || mongoose.model("Driver", driverSchema);
 
-export default User;
+export default Driver;
 

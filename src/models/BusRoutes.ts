@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const busrouteSchema=new mongoose.Schema({
-  name:{
+  Routename:{
     type:String,
     required:true
   },
@@ -13,11 +13,6 @@ const busrouteSchema=new mongoose.Schema({
     type:String,
     required:true
   },
-   BusType:{
-    type:String,
-    enum:["luxury","Executive","Sleeper"],
-    required:true
-  }
 
 },{
  timestamps:true

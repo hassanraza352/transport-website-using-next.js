@@ -11,12 +11,26 @@ const tripSchema=new mongoose.Schema({
         ref:"Busroute",
         required:true
   },
+   driver:{
+    type:mongoose.Types.ObjectId,
+        ref:"Driver",
+        required:true
+  },
+
     departureDate:{
-    type:String,
+    type:Date,
     required:true
   },
     departureTime:{
     type:String,
+    required:true
+  },
+  arrivalTime:{
+    type:String,
+    required:true
+  },
+  fare:{
+    type:Number,
     required:true
   }
 },{
