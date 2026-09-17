@@ -101,3 +101,45 @@ departureDate,departureTime,arrivalTime,registrationNumber,LicenseNO,startLocati
     })
   }
 }
+
+
+export async function DELETE(req:Request,{params}:{params:Promise<{id:string}>}){
+  try {
+    await protect("admin");
+    const {id}=await params;
+     if(!id){
+
+      return NextResponse.json({
+      message:"id is not found",
+      success:false
+    },
+  {
+    status:400
+  })}
+  await connect();
+
+  const deletedTrip=await Trip.findByIdAndDelete(id);
+  if(!deletedTrip){
+    return NextResponse.json({
+      message:"Trip one not found",
+      success:false
+    },{
+      status:404
+    })
+  }
+    return NextResponse.json({
+      message:"Trip deleted successfully",
+      success:true,
+      data:deletedTrip
+    },{
+      status:200
+    }) 
+  } catch (error) {
+    return NextResponse.json({
+      message:"error in deleting trip by id",error,
+      success:false
+    },{
+      status:500
+    })
+  }
+}
