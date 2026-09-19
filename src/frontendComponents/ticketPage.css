@@ -1,0 +1,29 @@
+
+    .ticket-wrapper {
+      max-width: 600px;
+      margin: 2rem auto;
+      background: radial-gradient(circle at center, #111a2e 0%, #0a1120 100%);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-xl);
+      padding: 2.5rem;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+      position: relative;
+    }
+    .ticket-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px dashed var(--border-color);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .qr-box {
+      width: 100px;
+      height: 100px;
+      background: #fff;
+      padding: 8px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
