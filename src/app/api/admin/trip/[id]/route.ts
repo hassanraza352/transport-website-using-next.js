@@ -103,6 +103,9 @@ departureDate,departureTime,arrivalTime,registrationNumber,LicenseNO,startLocati
 }
 
 
+
+
+
 export async function DELETE(req:Request,{params}:{params:Promise<{id:string}>}){
   try {
     await protect("admin");

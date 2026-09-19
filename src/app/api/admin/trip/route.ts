@@ -1,3 +1,6 @@
+import Bus from "@/models/Bus";
+import Busroute from "@/models/BusRoutes";
+import Driver from "@/models/driver";
 import Trip from "@/models/trip";
 import { protect } from "@/utils/auth";
 import connect from "@/utils/db";
@@ -22,13 +25,45 @@ export async function POST(req:Request){
 
     await connect();
 
+const BUS=await Bus.findOne({registrationNumber});
+if(!BUS){
+  return NextResponse.json({
+    message:"bus not found",
+success:false
+  },{
+    status:404
+  })
+}
+
+
+const BUSROUTE=await Busroute.findOne({startLocation,endLocation});
+if(!BUSROUTE){
+  return NextResponse.json({
+    message:"busroute not found",
+success:false
+  },{
+    status:404
+  })
+}
+
+
+
+const DRIVER=await Driver.findOne({LicenseNO});
+if(!BUS){
+  return NextResponse.json({
+    message:"driver not found",
+success:false
+  },{
+    status:404
+  })
+}
+
     const existingTrip=await Trip.findOne({
    departureDate,
   departureTime,
   arrivalTime,
-  startLocation,
-  endLocation,
-  registrationNumber
+  route:BUSROUTE._id,
+  bus:BUS._id
     })
     if(existingTrip){
      return NextResponse.json({
@@ -39,8 +74,8 @@ export async function POST(req:Request){
     })
     }
         const Newtrip=await Trip.create({
-           departureDate,departureTime,arrivalTime,registrationNumber,LicenseNO,startLocation,endLocation,fare
-        })
+           departureDate,departureTime,arrivalTime,bus:BUS._id,driver:DRIVER._id,route:BUSROUTE._id,fare
+})
         return NextResponse.json({
           message:"new trip is created successfully",
           success:true,

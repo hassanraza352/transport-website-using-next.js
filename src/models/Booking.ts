@@ -11,6 +11,21 @@ const bookingSchema=new mongoose.Schema({
     ref:"User",
     required:true
    },
+   status:{
+    type:String,
+    enum:["pending","confirmed","cancelled"],
+    default: "pending"
+   },
+    seatNumber:[{
+    type:Number,
+    enum:["available","booked"],
+    required:true
+   }],
+   bookingfare:{
+type:Number
+   }
+   
+   
 },{
  timestamps:true
 })
