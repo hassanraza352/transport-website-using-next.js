@@ -34,7 +34,17 @@ export async function GET(req:Request,{params}:{params:Promise<{id:string}>}){
       },
     {status:400})
   }
-  const BOOKING=await Booking.findById(id);
+  const BOOKING=await Booking.findById(id).populate(
+    {
+        path: "trip",
+        populate:[
+            { path: "bus" },
+      { path: "route" },
+      { path: "driver" }
+        ]
+    }
+    
+  ).populate("user");
   if(!BOOKING){
      return NextResponse.json({
         message:"booking not found",
@@ -43,6 +53,16 @@ export async function GET(req:Request,{params}:{params:Promise<{id:string}>}){
     {status:400})
   
   }
+
+  return NextResponse.json({
+    message:"booking crreated successfully",
+    success:true,
+    data:BOOKING
+  },{
+    status:200
+  })
+
+
 
   } catch (error) {
     return NextResponse.json({
