@@ -14,41 +14,33 @@ function UserHeader() {
           <i className="fa-solid fa-bus"></i>
           Go<span className="highlight">Ride</span>
         </Link>
-
         <ul className="nav-links">
-
           <li>
             <Link href="/user" className={path==="/user" ? "active":""}>
               Home
             </Link>
           </li>
-
           <li>
             <Link href="/user/search" className={path==="/user/search" ? "active":""}>
               Routes & Buses
             </Link>
           </li>
-
           <li>
             <Link href="/user/map" className={path==="/user/map" ? "active":""}>
               Live Map
             </Link>
           </li>
-
           <li>
             <Link href="user/about" className={path==="/user/about" ? "active":""}>
               About
             </Link>
           </li>
-
           <li>
             <Link href="/user/contactUs" className={path==="/user/contactUs" ? "active":""}>
               Contact
             </Link>
           </li>
-
         </ul>
-
         <div
           style={{
             display: "flex",
@@ -63,10 +55,9 @@ function UserHeader() {
     path === "/user/profile" ? "active" : ""
   }`}
 >
-            <i className="fa-solid fa-user"></i>
+     <i className="fa-solid fa-user"></i>
             My Profile
-          </Link>
-
+     </Link>
         </div>
 
         <button className="mobile-menu-btn">
