@@ -3,11 +3,48 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import axios from "axios";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+
+
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const router=useRouter();
+
+ const FormSubmitted =async (e:React.FormEvent)=>{
+   e.preventDefault();
+   try {
+    const result = await signIn("credentials", {
+  email,
+  password,
+  redirect: false,
+});
+
+if (result?.error) {
+ alert("login failed ")
+} else {
+    router.push("/user");
+  alert ("login successfully");
+}
+    
+
+
+
+
+
+   } catch (error: unknown) {
+  if (axios.isAxiosError(error)) {
+    alert(error.response?.data?.message || "Registration failed");
+  } else {
+    alert("Something went wrong");
+  }
+}
+
+ }
   return (
     <div className="welcome-split-container">
       <div className="welcome-split-card">
@@ -92,7 +129,7 @@ function Login() {
             </p>
           </div>
 
-          <form>
+          <form onSubmit={FormSubmitted}>
             {/* Email */}
             <div className="form-group">
               <label className="form-label">

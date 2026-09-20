@@ -3,13 +3,48 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import api from "@/utilsFrontend/axios";
+import { useRouter } from "next/navigation";
+import axios from "axios";
+
 
 function Signup() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
+  const [phoneNO, setPhone] = useState("");
   const [password, setPassword] = useState("");
 
+    const router=useRouter();
+
+  const submitted = async (e:React.FormEvent) => {
+     e.preventDefault();
+  try {
+    const response = await api.post("/auth/register", {
+      name,
+      email,
+      password,
+      phoneNO,
+    });
+
+    if (response.data.success) {
+      alert("Registration successful");
+      
+      // login page par bhej sakte ho
+      router.push("/user/login");
+    } else {
+      alert(response.data.message);
+    }
+
+  } catch (error: unknown) {
+  if (axios.isAxiosError(error)) {
+    alert(error.response?.data?.message || "Registration failed");
+  } else {
+    alert("Something went wrong");
+  }
+}
+
+
+};
   return (
     <div className="welcome-split-container">
       <div className="welcome-split-card">
@@ -94,7 +129,7 @@ function Signup() {
             </p>
           </div>
 
-          <form >
+          <form  onSubmit={submitted}>
 
             {/* Full Name */}
             <div
@@ -155,7 +190,7 @@ function Signup() {
                   type="text"
                   className="form-control"
                   placeholder="+92 300 1234567"
-                  value={phone}
+                  value={phoneNO}
                   onChange={(e) => setPhone(e.target.value)}
                   required
                 />
@@ -297,5 +332,4 @@ function Signup() {
     </div>
   );
 }
-
-export default Signup;
+export default Signup
