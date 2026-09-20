@@ -14,6 +14,11 @@ const busrouteSchema=new mongoose.Schema({
     required:true
   },
 
+    RouteDirection:{
+       type:String,
+    required:true
+  }
+
 },{
  timestamps:true
 })

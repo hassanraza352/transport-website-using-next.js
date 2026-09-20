@@ -5,9 +5,9 @@ import { NextResponse } from "next/server";
 
 export async function POST(req:Request){
   try {
-      const {Routename,startLocation,endLocation}=await req.json();
+      const {RouteDirection,startLocation,endLocation}=await req.json();
 
-      if(!Routename||!startLocation||!endLocation){
+      if(!RouteDirection||!startLocation||!endLocation){
   return NextResponse.json({
     message:"fill all details",
     success:false
@@ -17,7 +17,8 @@ export async function POST(req:Request){
     
   await protect("admin");
   await connect();
- 
+ const Routename = `${startLocation} -> ${endLocation}`;
+
   const ExistingRoute=await Busroute.findOne({Routename});
   if(ExistingRoute){
      return NextResponse.json({
@@ -30,7 +31,7 @@ export async function POST(req:Request){
 
 
 const newRoute=await Busroute.create({
-  Routename,startLocation,endLocation
+  Routename,startLocation,endLocation,RouteDirection
 })
 
 return NextResponse.json({

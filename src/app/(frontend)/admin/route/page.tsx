@@ -1,7 +1,34 @@
-import AdminSidebar from '@/frontendComponents/AdminSidebar'
-import React from 'react'
+'use client'
 
-function page() {
+import AdminSidebar from '@/frontendComponents/AdminSidebar'
+import React, { useState } from 'react'
+import api from '@/utilsFrontend/axios'
+ function Route() {
+  const [showAddroute, setShowAddroute] = useState(false)
+  const [RouteDirection, setRouteDirection] = useState('')
+  const [startLocation, setStartLocation] = useState('')
+  const [endLocation, setEndLocation] = useState('')
+
+
+  const handleRouteSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const response=await api.post("/admin/route",{
+      RouteDirection,
+      startLocation,
+      endLocation
+    })
+    
+    if(response.status===200){
+      alert("Route added successfully")
+      setRouteDirection("");
+      setStartLocation("");
+      setEndLocation("");
+    }
+    else{
+      alert("Error adding route")
+    }
+    setShowAddroute(false)
+  }
   return (
    <>
    
@@ -34,9 +61,9 @@ function page() {
 
       <button
         className="btn btn-primary btn-sm"
-        data-modal-target="addRouteModal"
+        onClick={() => setShowAddroute(true)}
       >
-        <i className="fa-solid fa-plus"></i> Add New Route
+        <i className="fa-solid fa-plus" ></i> Add New Route
       </button>
     </header>
 
@@ -415,9 +442,55 @@ function page() {
       </div>
     </div>
   </div>
+
+      {/* Add New Bus Modal */}
+      {showAddroute && (
+        <div className="modal-overlay" id="addBusModal">
+          <div className="modal-container">
+            <div className="modal-header">
+              <h3 style={{ fontSize: "1.25rem", fontWeight: 800, color: "#fff" }}>
+                Register New Bus Coach
+              </h3>
+              <button className="modal-close" onClick={() => setShowAddroute(false)}>
+                &times;
+              </button>
+            </div>
+
+            <form onSubmit={handleRouteSubmit}>
+              <div className="form-group">
+                <label className="form-label">Start Location</label>
+                <input value={startLocation} onChange={(e) => setStartLocation(e.target.value)} type="text" className="form-control" placeholder="e.g. Lahore" required/>
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">End Location</label>
+                <input value={endLocation} onChange={(e) => setEndLocation(e.target.value)} type="text" className="form-control" placeholder="e.g. Islamabad" required />
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+                
+              </div>
+
+              <div className="form-group">
+                <label className="form-label">route Name</label>
+                <input value={RouteDirection} onChange={(e) => setRouteDirection(e.target.value)} type="text" className="form-control" placeholder="e.g. via Motorway okara" required />
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: "1rem", marginTop: "1.5rem" }}>
+                <button type="button" className="btn btn-secondary" onClick={() => setShowAddroute(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn btn-primary">
+                  Register Bus
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 </div>
    </>
   )
 }
 
-export default page
+export default Route

@@ -2,9 +2,27 @@
 "use client";
 
 import AdminSidebar from "@/frontendComponents/AdminSidebar";
+import { protect } from "@/utils/auth";
+import { useSession } from "next-auth/react";
 import React from "react";
 
-function AdminDashboard() {
+function AdminDashboard (){
+
+  const today = new Date();
+
+const formattedDate = today.toLocaleDateString("en-GB", {
+  day: "2-digit",
+  month: "short",
+  year: "numeric"
+});
+
+  const session=useSession();
+
+const data=session?.data;
+
+
+
+
   return (
     <div className="admin-layout">
 
@@ -62,7 +80,7 @@ function AdminDashboard() {
               }}
             >
               <i className="fa-regular fa-calendar"></i>{" "}
-              Today, 24 Apr 2025
+              Today, {formattedDate}
             </span>
 
             <div className="user-profile-badge">
@@ -79,7 +97,7 @@ function AdminDashboard() {
                     color: "#fff",
                   }}
                 >
-                  Super Admin
+                 {data?.user?.name}
                 </strong>
 
                 <span
@@ -234,7 +252,7 @@ function AdminDashboard() {
               >
 
                 <a
-                  href="/admin/buses"
+                  href="/admin/bus"
                   className="card"
                   style={{
                     background: "var(--bg-input)",
@@ -273,7 +291,7 @@ function AdminDashboard() {
                 </a>
 
                 <a
-                  href="/admin/trips"
+                  href="/admin/trip"
                   className="card"
                   style={{
                     background: "var(--bg-input)",
@@ -312,7 +330,7 @@ function AdminDashboard() {
                 </a>
 
                 <a
-                  href="/admin/routes"
+                  href="/admin/route"
                   className="card"
                   style={{
                     background: "var(--bg-input)",
@@ -351,7 +369,7 @@ function AdminDashboard() {
                 </a>
 
                 <a
-                  href="/admin/bookings"
+                  href="/admin/booking"
                   className="card"
                   style={{
                     background: "var(--bg-input)",
@@ -409,7 +427,7 @@ function AdminDashboard() {
                 </h3>
 
                 <a
-                  href="/admin/routes"
+                  href="/admin/route"
                   style={{
                     fontSize: "0.8rem",
                     color: "var(--primary)",

@@ -1,9 +1,13 @@
-import AdminSidebar from '@/frontendComponents/AdminSidebar'
-import React from 'react'
+'use client'
 
-function page() {
+import AdminSidebar from '@/frontendComponents/AdminSidebar'
+import React,{useState} from 'react'
+
+
+function Driver() {
+  const [showaddDriver,setshowAddDriver]=useState(false)
+  const [showAssignDriver,setshowAssignDriver]=useState(false)
   return (
-   
    <>
    <div className="admin-layout">
   <AdminSidebar />
@@ -38,7 +42,7 @@ function page() {
         </div>
       </div>
 
-      <button className="btn btn-primary" data-modal-target="addDriverModal">
+      <button className="btn btn-primary" data-modal-target="addDriverModal" onClick={(e)=>{setshowAddDriver(true)}}>
         <i className="fa-solid fa-user-plus"></i> Add New Driver
       </button>
     </header>
@@ -219,7 +223,7 @@ function page() {
                       <i className="fa-solid fa-eye"></i> Profile
                     </a>
 
-                    <button
+                    <button onClick={(e)=>{setshowAssignDriver(true)}}
                       className="btn btn-outline btn-sm"
                       data-modal-target="assignDriverModal"
                     >
@@ -561,8 +565,8 @@ function page() {
   </div>
 </div>
 
-{/* Add New Driver Modal */}
-<div className="modal-overlay" id="addDriverModal">
+{showaddDriver && (
+  <div className="modal-overlay" id="addDriverModal">
   <div className="modal-container">
     <div className="modal-header">
       <h3
@@ -575,7 +579,7 @@ function page() {
         Register New HTV Driver
       </h3>
 
-      <button className="modal-close" data-modal-close>
+      <button onClick={(e)=>{setshowAddDriver(false)}} className="modal-close" data-modal-close>
         &times;
       </button>
     </div>
@@ -663,7 +667,7 @@ function page() {
           marginTop: "1.5rem",
         }}
       >
-        <button
+        <button onClick={(e)=>{setshowAddDriver(false)}}
           type="button"
           className="btn btn-secondary"
           data-modal-close
@@ -677,10 +681,86 @@ function page() {
       </div>
     </form>
   </div>
-</div>
+</div> 
+)}
+{ showAssignDriver && (
+  <div className="modal-overlay" id="assignDriverModal">
+  <div className="modal-container">
+    <div className="modal-header">
+      <h3
+        style={{
+          fontSize: "1.25rem",
+          fontWeight: 800,
+          color: "#fff",
+        }}
+      >
+        Assign Driver to Bus Fleet
+      </h3>
+      <button onClick={(e)=>{setshowAssignDriver(false)}} className="modal-close" data-modal-close >
+        &times;
+      </button>
+    </div>
+
+    <form>
+      <div className="form-group">
+        <label className="form-label">Select Registered Coach</label>
+
+        <select
+          className="form-control"
+          defaultValue="LES-8821 (Yutong Master Coach - Lahore to Islamabad)"
+        >
+          <option>
+            LES-8821 (Yutong Master Coach - Lahore to Islamabad)
+          </option>
+          <option>
+            KHI-4902 (Daewoo BH116 - Karachi to Lahore)
+          </option>
+          <option>
+            ISL-7711 (Yutong Sleeper - Peshawar to Islamabad)
+          </option>
+          <option>
+            MUL-3320 (Daewoo Express - Lahore to Multan)
+          </option>
+        </select>
+      </div>
+
+      <div className="form-group">
+        <label className="form-label">Duty Shift Hours</label>
+
+        <input
+          type="text"
+          className="form-control"
+          defaultValue="08:00 AM - 04:00 PM (8 Hours Shift)"
+        />
+      </div>
+
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          gap: "1rem",
+          marginTop: "1.5rem",
+        }}
+      >
+        <button onClick={(e)=>{setshowAssignDriver(false)}}
+          type="button"
+          className="btn btn-secondary"
+          data-modal-close
+        >
+          Cancel
+        </button>
+
+        <button type="submit" className="btn btn-primary">
+          Confirm Duty Assignment
+        </button>
+      </div>
+    </form>
+  </div>
+</div> 
+)}
 
 {/* Assign Driver Modal */}
-<div className="modal-overlay" id="assignDriverModal">
+{/* <div className="modal-overlay" id="assignDriverModal">
   <div className="modal-container">
     <div className="modal-header">
       <h3
@@ -753,9 +833,9 @@ function page() {
       </div>
     </form>
   </div>
-</div>
+</div> */}
    </>
   )
 }
 
-export default page
+export default Driver
