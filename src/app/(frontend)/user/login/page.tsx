@@ -7,8 +7,6 @@ import axios from "axios";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
-
-
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -21,6 +19,7 @@ function Login() {
     const result = await signIn("credentials", {
   email,
   password,
+   loginRole: "user",
   redirect: false,
 });
 

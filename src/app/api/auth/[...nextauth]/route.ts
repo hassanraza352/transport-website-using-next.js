@@ -19,16 +19,23 @@ export const authOptions:NextAuthOptions={
           label: "Password",
           type: "password",
         },
+       loginRole: {
+          label: "Login Role",
+          type: "text",
+         }
       },
    async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Email and password are required");
         }
+      
        await connect();
        const user = await User.findOne({
           email: credentials.email,
         });
-
+  if (user.role !== credentials.loginRole) {
+  throw new Error("Invalid login credentials");
+}
         if (!user) {
           throw new Error("Invalid email or password");
         }
@@ -48,14 +55,7 @@ export const authOptions:NextAuthOptions={
           email: user.email,
           role: user.role,
         };
-
-      
-      
       }
-
-
-
-
 
      })
   ],

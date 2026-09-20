@@ -120,7 +120,7 @@ export default function Home() {
 
               {/* Admin Portal */}
               <Link
-                href="/admin"
+                href="/admin/login"
                 className="btn btn-outline"
                 style={{
                   padding: "1rem",

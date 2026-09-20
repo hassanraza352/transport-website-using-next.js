@@ -1,9 +1,40 @@
 
 "use client";
 import Link from "next/link";
-import React from "react";
+import { useRouter } from "next/navigation";
+import React, { useState } from "react";
+import { signIn } from "next-auth/react";
+
+
 
 function AdminLogin() {
+ 
+  const [password,setPassword]=useState("");
+    const [email,setEmail]=useState("");
+ const router=useRouter();
+
+const FormSubmitted = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  try {
+    const result = await signIn("credentials", {
+      email,
+      password,
+       loginRole: "admin",
+      redirect: false,
+    });
+
+    if (result?.error) {
+      alert("Login failed");
+    } else {
+      alert("Login successful");
+      router.push("/admin");
+    }
+  } catch (error: unknown) {
+    console.log(error);
+    alert("Something went wrong");
+  }
+};
   return (
     <div className="welcome-split-container">
       <div className="welcome-split-card">
@@ -104,7 +135,7 @@ function AdminLogin() {
             </p>
           </div>
 
-          <form action="/admin/dashboard" method="GET">
+          <form onSubmit={FormSubmitted}>
 
             {/* Email */}
             <div className="form-group">
@@ -116,10 +147,11 @@ function AdminLogin() {
                 <input
                   type="email"
                   className="form-control"
-                  defaultValue="admin@goride.pk"
                   placeholder="admin@goride.pk"
                   style={{ paddingLeft: "2.5rem" }}
                   required
+                    value={email}
+                    onChange={(e)=>{setEmail(e.target.value)}}
                 />
 
                 <i
@@ -166,9 +198,12 @@ function AdminLogin() {
                 <input
                   type="password"
                   className="form-control"
-                  defaultValue="••••••••••••"
                   style={{ paddingLeft: "2.5rem" }}
                   required
+                   placeholder="********"
+                  value={password}
+                  onChange={(e)=>{setPassword(e.target.value)}}
+
                 />
 
                 <i

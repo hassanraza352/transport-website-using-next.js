@@ -3,10 +3,8 @@ import React from "react";
 import Link from "next/link";
 import "@/frontendComponents/UserMainPage.css"
 import UserHeader from "@/frontendComponents/UserHeader";
-import { usePathname } from "next/navigation";
 
 function MainPage() {
-const path=usePathname();
 
   return (
     <>
