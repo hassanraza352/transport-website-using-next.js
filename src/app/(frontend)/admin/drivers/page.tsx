@@ -1,12 +1,76 @@
 'use client'
 
 import AdminSidebar from '@/frontendComponents/AdminSidebar'
-import React,{useState} from 'react'
+import api from '@/utilsFrontend/axios'
+import React,{useEffect, useState} from 'react'
+type Driver = {
+  _id:string
+  name:string,
+  cnicNO:string,
+  LicenseNO:string,
+  profilePic:string,
+  phoneNO:string
+}
 
 
 function Driver() {
   const [showaddDriver,setshowAddDriver]=useState(false)
   const [showAssignDriver,setshowAssignDriver]=useState(false)
+  const [name,setname]=useState(" ")
+  const [cnicNO,setcnicNo]=useState(" ");
+  const [licenseNO,setlicenseNo]=useState(" ")
+  const [phoneNO,setphoneNO]=useState(" ");
+  const [profilePic,setprofilePic]=useState("a");
+  const [drivers,setdrivers]=useState<Driver[]>([])
+
+ 
+
+  const GetDrivers=async()=>{
+    try{
+      const response=await api.get("/admin/driver")
+      if(response.data.success===true){
+        setdrivers(response.data.data)
+      }
+      else
+        console.log("Error fetching drivers:",response.data.message)
+    }
+    catch(error){
+      console.log("error in getting drivers",error)
+    }
+  }
+
+  useEffect(()=>{
+    GetDrivers()
+  },[])
+
+   const handleAddDriver= async (e:React.FormEvent<HTMLFormElement>)=>{
+    e.preventDefault();
+    try {
+      const response=await api.post("/admin/driver",{
+        name:name,
+        cnicNO:cnicNO,
+        LicenseNO:licenseNO,
+        phoneNO:phoneNO,
+        profilePic:profilePic
+      })
+      if(response.data.success!==true){
+        console.log("Error adding driver:",response.data.message)
+      } 
+      if(response.data.success===true){
+        alert("Driver added successfully")
+        setshowAddDriver(false)
+        setname(" ")
+        setcnicNo(" ")
+        setlicenseNo(" ")
+        setphoneNO(" ")
+        setprofilePic("a")
+        GetDrivers()
+      }
+    } catch (error) {
+      console.error("Error adding driver:",error)
+    }
+  }
+
   return (
    <>
    <div className="admin-layout">
@@ -126,222 +190,9 @@ function Driver() {
             </thead>
 
             <tbody>
-              {/* Driver 1 */}
-              <tr>
-                <td>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "12px",
-                    }}
-                  >
-                    <img
-                      src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&q=80"
-                      className="avatar"
-                      alt="Tariq Mahmood"
-                      style={{
-                        width: "40px",
-                        height: "40px",
-                      }}
-                    />
 
-                    <div>
-                      <strong
-                        style={{
-                          display: "block",
-                          color: "#fff",
-                        }}
-                      >
-                        Tariq Mahmood
-                      </strong>
-
-                      <span
-                        style={{
-                          fontSize: "0.75rem",
-                          color: "var(--text-muted)",
-                        }}
-                      >
-                        Lahore Base Terminal
-                      </span>
-                    </div>
-                  </div>
-                </td>
-
-                <td>
-                  <div
-                    style={{
-                      fontSize: "0.85rem",
-                      color: "#fff",
-                    }}
-                  >
-                    CNIC: 35202-8819201-3
-                  </div>
-
-                  <div
-                    style={{
-                      fontSize: "0.75rem",
-                      color: "var(--primary)",
-                    }}
-                  >
-                    License: HTV-PK-88271
-                  </div>
-                </td>
-
-                <td>+92 301 8847291</td>
-
-                <td>
-                  <strong style={{ color: "var(--primary)" }}>
-                    LES-8821
-                  </strong>{" "}
-                  (Yutong)
-                </td>
-
-                <td>
-                  <strong style={{ color: "#fbbf24" }}>
-                    <i className="fa-solid fa-star"></i> 4.9
-                  </strong>
-                </td>
-
-                <td>
-                  <span className="badge badge-active">
-                    On Duty
-                  </span>
-                </td>
-
-                <td>
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "6px",
-                    }}
-                  >
-                    <a
-                      href="/admin/driver-profile"
-                      className="btn btn-secondary btn-sm"
-                    >
-                      <i className="fa-solid fa-eye"></i> Profile
-                    </a>
-
-                    <button onClick={(e)=>{setshowAssignDriver(true)}}
-                      className="btn btn-outline btn-sm"
-                      data-modal-target="assignDriverModal"
-                    >
-                      <i className="fa-solid fa-bus"></i> Assign
-                    </button>
-                  </div>
-                </td>
-              </tr>
-
-              {/* Driver 2 */}
-              <tr>
-                <td>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "12px",
-                    }}
-                  >
-                    <img
-                      src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&q=80"
-                      className="avatar"
-                      alt="Rashid Ali"
-                      style={{
-                        width: "40px",
-                        height: "40px",
-                      }}
-                    />
-
-                    <div>
-                      <strong
-                        style={{
-                          display: "block",
-                          color: "#fff",
-                        }}
-                      >
-                        Rashid Ali
-                      </strong>
-
-                      <span
-                        style={{
-                          fontSize: "0.75rem",
-                          color: "var(--text-muted)",
-                        }}
-                      >
-                        Karachi Base Terminal
-                      </span>
-                    </div>
-                  </div>
-                </td>
-
-                <td>
-                  <div
-                    style={{
-                      fontSize: "0.85rem",
-                      color: "#fff",
-                    }}
-                  >
-                    CNIC: 42101-9920192-1
-                  </div>
-
-                  <div
-                    style={{
-                      fontSize: "0.75rem",
-                      color: "var(--primary)",
-                    }}
-                  >
-                    License: HTV-PK-99120
-                  </div>
-                </td>
-
-                <td>+92 302 7710928</td>
-
-                <td>
-                  <strong style={{ color: "var(--primary)" }}>
-                    KHI-4902
-                  </strong>{" "}
-                  (Daewoo)
-                </td>
-
-                <td>
-                  <strong style={{ color: "#fbbf24" }}>
-                    <i className="fa-solid fa-star"></i> 4.8
-                  </strong>
-                </td>
-
-                <td>
-                  <span className="badge badge-active">
-                    On Duty
-                  </span>
-                </td>
-
-                <td>
-                  <div
-                    style={{
-                      display: "flex",
-                      gap: "6px",
-                    }}
-                  >
-                    <a
-                      href="/admin/driver-profile"
-                      className="btn btn-secondary btn-sm"
-                    >
-                      <i className="fa-solid fa-eye"></i> Profile
-                    </a>
-
-                    <button
-                      className="btn btn-outline btn-sm"
-                      data-modal-target="assignDriverModal"
-                    >
-                      <i className="fa-solid fa-bus"></i> Assign
-                    </button>
-                  </div>
-                </td>
-              </tr>
-
-              {/* Driver 3 */}
-              <tr>
+              {/* Driver 3  ye wo ha  jis ko asign hogya ha ok na*/}
+              {/* <tr>
                 <td>
                   <div
                     style={{
@@ -445,10 +296,10 @@ function Driver() {
                     </button>
                   </div>
                 </td>
-              </tr>
-
-              {/* Driver 4 */}
-              <tr>
+              </tr> */}
+            {drivers.map((driver)=>{
+              return(
+                <tr   key={driver._id}>
                 <td>
                   <div
                     style={{
@@ -474,7 +325,7 @@ function Driver() {
                           color: "#fff",
                         }}
                       >
-                        Zubair Ahmed
+                       {driver?.name}
                       </strong>
 
                       <span
@@ -496,7 +347,7 @@ function Driver() {
                       color: "#fff",
                     }}
                   >
-                    CNIC: 36302-5528109-9
+                    CNIC: {driver?.cnicNO}
                   </div>
 
                   <div
@@ -505,11 +356,11 @@ function Driver() {
                       color: "var(--primary)",
                     }}
                   >
-                    License: HTV-PK-55219
+                    License: {driver?.LicenseNO}
                   </div>
                 </td>
 
-                <td>+92 304 9918201</td>
+                <td>{driver?.phoneNO}</td>
 
                 <td>
                   <span
@@ -556,7 +407,12 @@ function Driver() {
                     </button>
                   </div>
                 </td>
-              </tr>
+              </tr> 
+              );
+            })}
+
+
+
             </tbody>
           </table>
         </div>
@@ -584,15 +440,18 @@ function Driver() {
       </button>
     </div>
 
-    <form>
+    <form onSubmit={handleAddDriver}>
       <div className="form-group">
         <label className="form-label">Driver Full Name</label>
 
         <input
+          value={name}
+          onChange={(e)=>{setname(e.target.value)}}
           type="text"
           className="form-control"
           placeholder="e.g. Faisal Mehmood"
           required
+
         />
       </div>
 
@@ -607,6 +466,8 @@ function Driver() {
           <label className="form-label">CNIC Number</label>
 
           <input
+          value={cnicNO}
+          onChange={(e)=>{setcnicNo(e.target.value)}}
             type="text"
             className="form-control"
             placeholder="35202-0000000-0"
@@ -620,6 +481,8 @@ function Driver() {
           </label>
 
           <input
+          value={licenseNO}
+          onChange={(e)=>{setlicenseNo(e.target.value)}}
             type="text"
             className="form-control"
             placeholder="HTV-PK-00000"
@@ -639,6 +502,8 @@ function Driver() {
           <label className="form-label">Phone Number</label>
 
           <input
+            value={phoneNO}
+            onChange={(e)=>{setphoneNO(e.target.value)}}
             type="text"
             className="form-control"
             placeholder="+92 300 0000000"
@@ -683,6 +548,8 @@ function Driver() {
   </div>
 </div> 
 )}
+
+
 { showAssignDriver && (
   <div className="modal-overlay" id="assignDriverModal">
   <div className="modal-container">
@@ -730,7 +597,7 @@ function Driver() {
         <input
           type="text"
           className="form-control"
-          defaultValue="08:00 AM - 04:00 PM (8 Hours Shift)"
+          // defaultValue="08:00 AM - 04:00 PM (8 Hours Shift)"
         />
       </div>
 

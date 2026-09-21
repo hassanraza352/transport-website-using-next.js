@@ -1,17 +1,79 @@
 "use client";
 
 import AdminSidebar from "@/frontendComponents/AdminSidebar";
-import React, { useState } from "react";
+import api from "@/utilsFrontend/axios";
+import React, { useEffect, useState } from "react";
+type Bus = {
+  _id:string
+  registrationNumber:string,
+  busModel:string,
+  totalSeat:number,
+  coachType:string
+}
 
 function BusesPage() {
   const [showAddBus, setShowAddBus] = useState(false);
   const [showAddDriver, setShowAddDriver] = useState(false);
+  const [registrationNumber,setregistrationNumber]=useState("");
+   const [busModel,setbusModel]=useState("");
+  const [totalSeat,settotalSeat]=useState("");
+  const [coachType,setcoachType]=useState("Luxury");
+  const [buses,setbuses]=useState<Bus[]>([])
+
+
+
+  const getAllBuses=async ()=>{
+    try{
+      const response=await api.get("/admin/bus")
+      console.log("chala code ",response)
+      if(response.data.success===true){
+        setbuses(response.data.data)
+      }
+      else
+        console.log("Error fetching buses:",response.data.message)
+    }
+    catch(error){
+      console.log("error in getting buses",error)
+    }
+
+  }
+
+
+  useEffect(()=>{
+getAllBuses()
+  }
+,[])
+ 
 
   // Form Submit Handlers
-  const handleBusSubmit = (e:React.FormEvent) => {
+  const handleBusSubmit = async (e:React.FormEvent) => {
     e.preventDefault();
-    // Add your submit logic here
-    setShowAddBus(false);
+   try {
+     const response=await api.post("/admin/bus",{
+      registrationNumber,
+      busModel,
+      totalSeat,
+      coachType
+    })
+    if(response?.data?.success){
+      alert("Bus created successfully")
+
+      getAllBuses();
+      setShowAddBus(false)
+      setregistrationNumber("")
+      setbusModel("")
+      settotalSeat("")
+      setcoachType("")
+      
+    }
+    else
+    {
+      console.log("error in creating a bus",response?.data?.message)
+    }
+    
+   } catch (error) {
+    console.log("error in creating a bus",error)
+   }
   };
 
   const handleDriverSubmit = (e:React.FormEvent) => {
@@ -122,8 +184,33 @@ function BusesPage() {
                 </thead>
 
                 <tbody>
+
+                  {buses.map((bus)=>{
+                    return(
+                        <tr key={bus?._id}>
+                    <td style={{ fontWeight: 800, color: "#fff" }}>{bus?.registrationNumber}</td>
+                    <td>{bus?.busModel} {bus?.coachType}</td>
+                    <td>{bus?.totalSeat} Seats</td>
+                    <td>Lahore → Multan</td>
+                    <td>
+                      <span style={{ color: "var(--text-dim)", fontStyle: "italic" }}>
+                        Unassigned
+                      </span>
+                    </td>
+                    <td>
+                      <span className="badge badge-pending">Depot Service</span>
+                    </td>
+                    <td>
+                      <button className="btn btn-primary btn-sm" onClick={() => setShowAddDriver(true)}>
+                        <i className="fa-solid fa-user-plus"></i> Assign Driver
+                      </button>
+                    </td>
+                  </tr>
+                    )
+                  })}
+
                   {/* Bus 1 */}
-                  <tr>
+                  {/* <tr>
                     <td style={{ fontWeight: 800, color: "#fff" }}>LES-8821</td>
                     <td>Yutong Master Coach (2024)</td>
                     <td>45 Seats</td>
@@ -153,7 +240,7 @@ function BusesPage() {
                   </tr>
 
                   {/* Bus 2 */}
-                  <tr>
+                  {/* <tr>
                     <td style={{ fontWeight: 800, color: "#fff" }}>KHI-4902</td>
                     <td>Daewoo BH116 Executive</td>
                     <td>40 Seats</td>
@@ -180,10 +267,10 @@ function BusesPage() {
                         <i className="fa-solid fa-eye"></i> Driver Info
                       </a>
                     </td>
-                  </tr>
+                  </tr> */}
 
                   {/* Bus 3 */}
-                  <tr>
+                  {/* <tr>
                     <td style={{ fontWeight: 800, color: "#fff" }}>ISL-7711</td>
                     <td>Yutong Sleeper Special</td>
                     <td>30 Berths</td>
@@ -210,10 +297,10 @@ function BusesPage() {
                         <i className="fa-solid fa-eye"></i> Driver Info
                       </a>
                     </td>
-                  </tr>
+                  </tr> */}
 
                   {/* Bus 4 */}
-                  <tr>
+                  {/* <tr>
                     <td style={{ fontWeight: 800, color: "#fff" }}>MUL-3320</td>
                     <td>Daewoo Express Luxury</td>
                     <td>45 Seats</td>
@@ -231,7 +318,8 @@ function BusesPage() {
                         <i className="fa-solid fa-user-plus"></i> Assign Driver
                       </button>
                     </td>
-                  </tr>
+                  </tr>  */}
+
                 </tbody>
               </table>
             </div>
@@ -255,26 +343,26 @@ function BusesPage() {
             <form onSubmit={handleBusSubmit}>
               <div className="form-group">
                 <label className="form-label">Bus Registration Number</label>
-                <input type="text" className="form-control" placeholder="e.g. LHR-9922" required />
+                <input value={registrationNumber} onChange={(e)=>{setregistrationNumber(e?.target?.value)}} type="text" className="form-control" placeholder="e.g. LHR-9922" required />
               </div>
 
               <div className="form-group">
                 <label className="form-label">Bus Model & Manufacturer</label>
-                <input type="text" className="form-control" placeholder="e.g. Yutong Master Coach 2025" required />
+                <input value={busModel} onChange={(e)=>{setbusModel(e?.target?.value)}} type="text" className="form-control" placeholder="e.g. Yutong Master Coach 2025" required />
               </div>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
                 <div className="form-group">
                   <label className="form-label">Total Seats Capacity</label>
-                  <input type="number" className="form-control" defaultValue={45} required />
+                  <input value={totalSeat} onChange={(e)=>{settotalSeat(e?.target?.value)}} type="number" className="form-control"  required />
                 </div>
 
                 <div className="form-group">
                   <label className="form-label">Coach Type</label>
-                  <select className="form-control" defaultValue="luxury">
-                    <option value="luxury">Luxury AC Coach</option>
-                    <option value="executive">Executive Lounge</option>
-                    <option value="sleeper">Sleeper Coach</option>
+                  <select className="form-control" value={coachType} onChange={(e)=>{setcoachType(e.target.value)}}>
+                    <option value="Luxury">Luxury AC Coach</option>
+                    <option value="Executive">Executive Lounge</option>
+                    <option value="Sleeper">Sleeper Coach</option>
                   </select>
                 </div>
               </div>

@@ -8,12 +8,12 @@ import Driver from "@/models/driver";
 export async function POST(req:Request){
   try {
     const{name,cnicNO,LicenseNO,profilePic,phoneNO}=await req.json();
-    if(!name||!cnicNO||LicenseNO||!phoneNO){
+    if(!name||!cnicNO|| !LicenseNO||!phoneNO){
       return NextResponse.json({
       message:"complete all details",
       success:false
       },{
-        status:400
+        status:401
       })
     }
 
@@ -43,11 +43,36 @@ export async function POST(req:Request){
       })
 
   } catch (error) {
+    console.log("error in creating driver",error)
     return NextResponse.json({
       message:"error in creating driver",error,
       success:false
     },{
-      status:500
+      status:503
+    })
+  }
+}
+
+export async function GET(req:Request){
+  try{
+    await protect("admin");
+    await connect();
+    const drivers=await Driver.find().sort({createdAt:-1});
+    return NextResponse.json({
+      message:"drivers fetched successfully",
+      success:true,
+      data:drivers
+    },{
+      status:200
+    })
+
+  }
+  catch(error){
+    return NextResponse.json({
+      message:"error in getting driver",error,
+      success:false
+    },{
+      status:503
     })
   }
 }

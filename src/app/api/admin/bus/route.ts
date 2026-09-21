@@ -52,3 +52,31 @@ export async function POST(req:Request){
     })
   }
 }
+
+export async function GET(){
+
+  try {
+    await protect("admin");
+    await  connect();
+
+    const buses=await Bus.find().sort({createdAt:-1});
+    return NextResponse.json({
+      message:"busses fetched successfully",
+      success:true,
+      data:buses
+    },
+  {status:200})
+
+
+
+
+  } catch (error) {
+    console.log("error in getting all buses data",error)
+    return NextResponse.json({
+        message:"error in getting all buses",
+        success:false
+    },{
+      status:500
+    })
+  }
+}
