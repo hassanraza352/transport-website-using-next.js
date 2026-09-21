@@ -5,6 +5,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(req:Request){
   try {
+      await protect("admin");
       const {RouteDirection,startLocation,endLocation}=await req.json();
 
       if(!RouteDirection||!startLocation||!endLocation){
@@ -15,7 +16,7 @@ export async function POST(req:Request){
     status:400
   }) }
     
-  await protect("admin");
+
   await connect();
  const Routename = `${startLocation} -> ${endLocation}`;
 
@@ -48,4 +49,29 @@ return NextResponse.json({
     },
   {status:500})
   }
+}
+
+
+export async function GET(){
+  try {
+    await protect("admin");
+    await connect();
+
+    const Allroutes=await Busroute.find().sort({createdAt:-1});
+    return NextResponse.json({
+      message:"all routes fetched successfully",
+      success:true,
+      data:Allroutes
+    },{
+      status:200
+    })
+  } catch (error) {
+    console.log(error);
+    return NextResponse.json({
+      message:"error in fetching routes",error,
+      success:false
+  },{
+   status:504
+  })
+}
 }

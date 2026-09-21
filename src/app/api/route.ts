@@ -2,10 +2,12 @@
 
 // health check route
 
+import connect from "@/utils/db";
 import { NextResponse } from "next/server";
 
 export async function GET(){
 try{
+  await connect();
   return(
     NextResponse.json({
         message:"server is running sucessfully",
