@@ -1,7 +1,15 @@
-import AdminSidebar from '@/frontendComponents/AdminSidebar'
-import React from 'react'
+'use client'
 
-function page() {
+
+import AdminSidebar from '@/frontendComponents/AdminSidebar'
+import React, { useState } from 'react'
+
+function Booking() {
+  const [showbookingDetail,showsetbookingDetail]=useState(false);
+    const [showupdatebookingDetail,showupdatesetbookingDetail]=useState(false);
+
+  
+
   return (
     <>
       <div className="admin-layout">
@@ -148,7 +156,9 @@ function page() {
           </thead>
 
           <tbody>
-            <tr data-status="confirmed">
+
+
+                       <tr data-status="confirmed">
               <td
                 style={{
                   fontWeight: 800,
@@ -195,14 +205,14 @@ function page() {
 
               <td>
                 <div style={{ display: "flex", gap: "6px" }}>
-                  <button
+                  <button onClick={()=>{showupdatesetbookingDetail(true)}}
                     className="btn btn-primary btn-sm"
                     data-modal-target="editBookingModal"
                   >
                     <i className="fa-solid fa-pen-to-square"></i> Update
                   </button>
 
-                  <button
+                  <button onClick={()=>{showsetbookingDetail(true)}}
                     className="btn btn-secondary btn-sm"
                     data-modal-target="bookingDetailsModal"
                   >
@@ -212,6 +222,10 @@ function page() {
               </td>
             </tr>
 
+
+
+
+            {/* 
             <tr data-status="pending">
               <td
                 style={{
@@ -466,7 +480,7 @@ function page() {
                   </button>
                 </div>
               </td>
-            </tr>
+            </tr> */}
           </tbody>
         </table>
       </div>
@@ -475,8 +489,8 @@ function page() {
 </div>
       </div>
 
-
-<div className="modal-overlay" id="editBookingModal">
+{showupdatebookingDetail && (
+  <div className="modal-overlay" id="editBookingModal">
   <div className="modal-container">
     <div className="modal-header">
       <h3
@@ -489,7 +503,7 @@ function page() {
         Update Booking Status & Details
       </h3>
 
-      <button className="modal-close" data-modal-close>
+      <button className="modal-close" data-modal-close onClick={()=>{showupdatesetbookingDetail(false)}}>
         &times;
       </button>
     </div>
@@ -567,7 +581,7 @@ function page() {
           marginTop: "1.5rem",
         }}
       >
-        <button type="button" className="btn btn-secondary" data-modal-close>
+        <button type="button" className="btn btn-secondary" data-modal-close onClick={()=>{showupdatesetbookingDetail(false)}}>
           Cancel
         </button>
 
@@ -577,9 +591,12 @@ function page() {
       </div>
     </form>
   </div>
-</div>
+</div> 
+)}
+{/* */}
 
 {/* Booking Details View Modal */}
+{showbookingDetail &&(
 <div className="modal-overlay" id="bookingDetailsModal">
   <div className="modal-container">
     <div className="modal-header">
@@ -593,7 +610,7 @@ function page() {
         Booking Details — GR-829451
       </h3>
 
-      <button className="modal-close" data-modal-close>
+      <button className="modal-close" data-modal-close onClick={()=>{showsetbookingDetail(false)}}>
         &times;
       </button>
     </div>
@@ -647,7 +664,7 @@ function page() {
         gap: "1rem",
       }}
     >
-      <button className="btn btn-secondary" data-modal-close>
+      <button className="btn btn-secondary" data-modal-close onClick={()=>{showsetbookingDetail(false)}}>
         Close
       </button>
 
@@ -657,8 +674,9 @@ function page() {
     </div>
   </div>
 </div>
+)}
 </>
   )
 }
 
-export default page
+export default Booking

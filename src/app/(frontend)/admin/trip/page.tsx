@@ -1,7 +1,105 @@
-import AdminSidebar from '@/frontendComponents/AdminSidebar'
-import React from 'react'
+'use client'
 
-function page() {
+import AdminSidebar from '@/frontendComponents/AdminSidebar'
+import React, { useEffect, useState } from 'react'
+import api from '@/utilsFrontend/axios';
+type Bus = {
+  _id:string
+  registrationNumber:string,
+  busModel:string,
+  totalSeat:number,
+  coachType:string
+}
+
+type Routes = {
+  _id: string;
+  Routename: string;
+  startLocation: string;
+  endLocation: string;
+  RouteDirection: string;
+};
+
+type Driver = {
+  _id:string
+  name:string,
+  cnicNO:string,
+  LicenseNO:string,
+  profilePic:string,
+  phoneNO:string
+}
+
+function Trip() {
+const [showSheduleTrip,setshowSheduleTrip]=useState(false);
+const [busRoutes,setbusRoutes]=useState<Routes[]>([]);
+const [buses,setbuses]=useState<Bus[]>([]);
+const [drivers,setdrivers]=useState<Driver[]>([]);
+
+const[departureDate,setdepartureDate]=useState("");
+const [departureTime,setdepartureTime]=useState("");
+const [arrivalTime,setarrivalTime]=useState("");
+const [fare,setfare]=useState("");
+const [driver,setdriver]=useState("");
+const [bus,setbus]=useState("");
+const [route,setroute]=useState("");
+
+console.log("bus is ",bus);
+console.log("driver is ",driver);
+console.log("route is",route);
+
+
+ const GetDrivers=async()=>{
+    try{
+      const response=await api.get("/admin/driver")
+      if(response.data.success===true){
+        setdrivers(response.data.data)
+      }
+      else
+        console.log("Error fetching drivers:",response.data.message)
+    }
+    catch(error){
+      console.log("error in getting drivers",error)
+    }
+  }
+
+    const fetchAllRoutes = async () => {
+      try {
+        const response = await api.get("/admin/route");
+        if (response.status === 200) {
+          setbusRoutes(response.data.data);
+        } else {
+          console.error("Error fetching routes:", response.data.message);
+        }
+      } catch (error) {
+        console.error("Error fetching routes:", error);
+      }
+    };
+
+      const getAllBuses=async ()=>{
+    try{
+      const response=await api.get("/admin/bus")
+      console.log("chala code ",response)
+      if(response.data.success===true){
+        setbuses(response.data.data)
+      }
+      else
+        console.log("Error fetching buses:",response.data.message)
+    }
+    catch(error){
+      console.log("error in getting buses",error)
+    }
+
+  }
+
+
+    useEffect(()=>{
+   getAllBuses();
+  fetchAllRoutes();
+  GetDrivers();
+    }
+  ,[])
+
+
+
   return (
     <>
     <div className="admin-layout">
@@ -36,7 +134,7 @@ function page() {
         </div>
       </div>
 
-      <button
+      <button onClick={() => setshowSheduleTrip(true)}
         className="btn btn-primary"
         data-modal-target="createTripModal"
       >
@@ -264,8 +362,8 @@ function page() {
 </div>
 
 {/* Create / Schedule Trip Detailed Form Modal */}
-
-<div className="modal-overlay" id="createTripModal">
+{showSheduleTrip && (
+ <div className="modal-overlay" id="createTripModal">
   <div className="modal-container">
     <div className="modal-header">
       <h3
@@ -278,7 +376,7 @@ function page() {
         Schedule Intercity Bus Trip
       </h3>
 
-      <button className="modal-close" data-modal-close>
+      <button className="modal-close" data-modal-close onClick={()=>{setshowSheduleTrip(false)}}>
         &times;
       </button>
     </div>
@@ -291,66 +389,41 @@ function page() {
           gap: "1rem",
         }}
       >
+
+
         <div className="form-group">
           <label className="form-label">
-            Origin Departure City
+          Routes Available
           </label>
 
-          <select
+          <select  value={route} onChange={(e)=>{setroute(e.target.value)}}
+          
             className="form-control"
-            defaultValue="Lahore"
-          >
-            <option value="Lahore">
-              Lahore (Kalma Chowk)
+            >   
+            {busRoutes?.map((route)=>{
+              return (
+                   <option value={route?.Routename} key={route?._id}>
+               {route?.Routename}
             </option>
+              )
+            })}
 
-            <option value="Islamabad">
-              Islamabad (Faizabad)
-            </option>
 
-            <option value="Karachi">
-              Karachi (Sohrab Goth)
-            </option>
-
-            <option value="Multan">
-              Multan (Vehari Chowk)
-            </option>
-
-            <option value="Peshawar">
-              Peshawar (General Bus Stand)
-            </option>
           </select>
+
         </div>
-
-        <div className="form-group">
+         <div className="form-group">
           <label className="form-label">
-            Destination Arrival City
+            Departure Date
           </label>
 
-          <select
+          <input
+            value={departureDate}
+            onChange={(e)=>{setdepartureDate(e.target.value)}}
+            type="Date"
             className="form-control"
-            defaultValue="Islamabad"
-          >
-            <option value="Islamabad">
-              Islamabad (Faizabad)
-            </option>
-
-            <option value="Lahore">
-              Lahore (Kalma Chowk)
-            </option>
-
-            <option value="Karachi">
-              Karachi (Sohrab Goth)
-            </option>
-
-            <option value="Multan">
-              Multan (Vehari Chowk)
-            </option>
-
-            <option value="Peshawar">
-              Peshawar (General Bus Stand)
-            </option>
-          </select>
+            required
+          />
         </div>
       </div>
 
@@ -367,9 +440,10 @@ function page() {
           </label>
 
           <input
+           value={departureTime}
+            onChange={(e)=>{setdepartureTime(e.target.value)}}
             type="time"
             className="form-control"
-            defaultValue="10:30"
             required
           />
         </div>
@@ -380,9 +454,10 @@ function page() {
           </label>
 
           <input
+           value={arrivalTime}
+            onChange={(e)=>{setarrivalTime(e.target.value)}}
             type="time"
             className="form-control"
-            defaultValue="15:30"
             required
           />
         </div>
@@ -402,23 +477,16 @@ function page() {
 
           <select
             className="form-control"
-            defaultValue="LES-8821"
-          >
-            <option value="LES-8821">
-              LES-8821 (Yutong Master Coach - 45 Seats)
+value={bus} onChange={((e)=>{setbus(e.target.value)})}          >
+            {buses.map((bus)=>{
+return(
+      <option value={bus?.busModel} key={bus?._id}>
+        {bus?.busModel}
             </option>
+)
+            })}
+         
 
-            <option value="KHI-4902">
-              KHI-4902 (Daewoo BH116 Executive - 40 Seats)
-            </option>
-
-            <option value="ISL-7711">
-              ISL-7711 (Yutong Sleeper Special - 30 Berths)
-            </option>
-
-            <option value="MUL-3320">
-              MUL-3320 (Daewoo Express Luxury - 45 Seats)
-            </option>
           </select>
         </div>
 
@@ -427,25 +495,17 @@ function page() {
             Assign Certified Driver
           </label>
 
-          <select
+          <select value={driver} onChange={((e)=>{setdriver(e.target.value)})}
             className="form-control"
-            defaultValue="Tariq Mahmood"
           >
-            <option value="Tariq Mahmood">
-              Tariq Mahmood (HTV-PK-88271)
+            {drivers.map((driver)=>{
+              return(
+                 <option value={driver?.name} key={driver?._id}>
+              {driver?.name}
             </option>
-
-            <option value="Rashid Ali">
-              Rashid Ali (HTV-PK-99120)
-            </option>
-
-            <option value="Kamran Shah">
-              Kamran Shah (HTV-PK-33821)
-            </option>
-
-            <option value="Zubair Ahmed">
-              Zubair Ahmed (HTV-PK-55219)
-            </option>
+              )
+            })}
+  
           </select>
         </div>
       </div>
@@ -463,9 +523,11 @@ function page() {
           </label>
 
           <input
+           value={fare}
+            onChange={(e)=>{setfare(e.target.value)}}
             type="number"
             className="form-control"
-            defaultValue="2500"
+            placeholder='2400'
             required
           />
         </div>
@@ -478,7 +540,7 @@ function page() {
           <input
             type="text"
             className="form-control"
-            defaultValue="Bhera Service Area (20 Mins Stopover)"
+            placeholder="Bhera Service Area (20 Mins Stopover)"
           />
         </div>
       </div>
@@ -491,7 +553,7 @@ function page() {
           marginTop: "1.5rem",
         }}
       >
-        <button
+        <button onClick={()=>{setshowSheduleTrip(false)}}
           type="button"
           className="btn btn-secondary"
           data-modal-close
@@ -508,9 +570,11 @@ function page() {
       </div>
     </form>
   </div>
-</div>
+</div> 
+)}
+
     </>
   )
 }
 
-export default page
+export default Trip

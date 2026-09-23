@@ -12,9 +12,9 @@ export async function POST(req:Request){
   try {
         await protect("admin");
 
-    const{departureDate,departureTime,arrivalTime,registrationNumber,LicenseNO,startLocation,endLocation,fare}=await req.json();
+    const{departureDate,departureTime,arrivalTime,busID,DriverID,routeID,fare}=await req.json();
      
-    if(!departureDate|| !departureTime|| !arrivalTime|| !registrationNumber ||!LicenseNO|| !startLocation|| !endLocation|| !fare){
+    if(!departureDate|| !departureTime|| !arrivalTime|| !busID ||!DriverID|| !routeID || !fare){
       return NextResponse.json({
         message:"complete all details",
         success:false
