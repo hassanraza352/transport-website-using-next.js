@@ -12,9 +12,18 @@ export async function POST(req:Request){
   try {
         await protect("admin");
 
-    const{departureDate,departureTime,arrivalTime,busID,DriverID,routeID,fare}=await req.json();
+    const{ departureDate,arrivalTime
+    ,departureTime,fare,
+    driver,
+    bus,
+    route
+  }=await req.json();
+      console.log(`departureDate,${departureDate},arrivalTime,${arrivalTime},departureTime,${departureTime},fare,${fare},driver,${driver},bus,${bus},route,${route}`);
+
      
-    if(!departureDate|| !departureTime|| !arrivalTime|| !busID ||!DriverID|| !routeID || !fare){
+    if(!departureDate|| !departureTime|| !arrivalTime|| !driver ||!bus|| !route || !fare){
+      console.log("error in completing details");
+      console.log(`departureDate,${departureDate},arrivalTime,${arrivalTime},departureTime,${departureTime},fare,${fare},driver,${driver},bus,${bus},route,${route}`);
       return NextResponse.json({
         message:"complete all details",
         success:false
@@ -25,7 +34,8 @@ export async function POST(req:Request){
 
     await connect();
 
-const BUS=await Bus.findOne({registrationNumber});
+const BUS=await Bus.findOne({busModel:bus});
+console.log("bus",BUS);
 if(!BUS){
   return NextResponse.json({
     message:"bus not found",
@@ -36,8 +46,9 @@ success:false
 }
 
 
-const BUSROUTE=await Busroute.findOne({startLocation,endLocation});
+const BUSROUTE=await Busroute.findOne({  Routename:route});
 if(!BUSROUTE){
+  console.log("busRoute",BUSROUTE)
   return NextResponse.json({
     message:"busroute not found",
 success:false
@@ -48,8 +59,9 @@ success:false
 
 
 
-const DRIVER=await Driver.findOne({LicenseNO});
-if(!BUS){
+const DRIVER=await Driver.findOne({name:driver});
+if(!DRIVER){
+  console.log("DRIVER",DRIVER)
   return NextResponse.json({
     message:"driver not found",
 success:false

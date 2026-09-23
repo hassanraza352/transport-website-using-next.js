@@ -27,12 +27,25 @@ type Driver = {
   profilePic:string,
   phoneNO:string
 }
+type Trip = {
+  _id:string,
+  departureDate: string;
+  arrivalTime: string;
+  departureTime: string;
+  fare: number;
+  driver: string;
+  bus: string;
+  route: string;
+};
 
 function Trip() {
 const [showSheduleTrip,setshowSheduleTrip]=useState(false);
 const [busRoutes,setbusRoutes]=useState<Routes[]>([]);
 const [buses,setbuses]=useState<Bus[]>([]);
 const [drivers,setdrivers]=useState<Driver[]>([]);
+
+const [AllTrips,setAllTrips]=useState<Trip[]>([]);
+
 
 const[departureDate,setdepartureDate]=useState("");
 const [departureTime,setdepartureTime]=useState("");
@@ -42,10 +55,37 @@ const [driver,setdriver]=useState("");
 const [bus,setbus]=useState("");
 const [route,setroute]=useState("");
 
-console.log("bus is ",bus);
-console.log("driver is ",driver);
-console.log("route is",route);
 
+const handleOnsubmit=async (e:React.FormEvent)=>{
+   e.preventDefault();
+try {
+  const response=await api.post("/admin/trip",{
+    departureDate,arrivalTime
+    ,departureTime,fare,
+    driver,
+    bus,
+    route
+  })
+  if(response.status===200){
+    alert("trip created successfully")
+    setshowSheduleTrip(false);
+    setdepartureDate("");
+    setdepartureTime("");
+    setarrivalTime("");
+    setfare("");
+    setdriver("");
+    setbus("");
+    setroute("");
+  }
+  else{
+    console.log("error in trip",response.data.message)
+  }
+
+} catch (error) {
+  console.log("error in creating trip",error);
+  alert("failed to creat a trip")
+}
+}
 
  const GetDrivers=async()=>{
     try{
@@ -74,7 +114,7 @@ console.log("route is",route);
       }
     };
 
-      const getAllBuses=async ()=>{
+  const getAllBuses=async ()=>{
     try{
       const response=await api.get("/admin/bus")
       console.log("chala code ",response)
@@ -97,6 +137,42 @@ console.log("route is",route);
   GetDrivers();
     }
   ,[])
+  const GetAllTips=async ()=>{
+try {
+  const response=await api.get("/admin/trip");
+  if(response?.status===200){
+       setAllTrips(response?.data?.data)
+  }
+  else{
+  console.log("error  in getting trips response")
+  }
+} catch (error) {
+  console.log("error  in getting all trips")
+}
+  }
+
+    useEffect(() => {
+     GetAllTips()
+},[]);
+
+  useEffect(() => {
+  if (busRoutes.length > 0) {
+    setroute(busRoutes[0].Routename);
+  }
+}, [busRoutes]);
+
+useEffect(() => {
+  if (drivers.length > 0) {
+    setdriver(drivers[0].name);
+  }
+}, [drivers]);
+
+useEffect(() => {
+  if (buses.length > 0) {
+    setbus(buses[0].busModel);
+  }
+}, [buses]);
+
 
 
 
@@ -172,18 +248,20 @@ console.log("route is",route);
             </thead>
 
             <tbody>
-              <tr>
+              {AllTrips.map((trip)=>{
+                return(
+   <tr key={trip?._id}>
                 <td
                   style={{
                     fontWeight: 800,
                     color: "var(--primary)",
                   }}
                 >
-                  TR-901
+                  TR-{(trip._id).slice(length-5,length-1)}
                 </td>
 
                 <td>
-                  <strong>Lahore → Islamabad</strong>
+                  <strong>{trip?.route?.Routename}</strong>
 
                   <div
                     style={{
@@ -191,15 +269,15 @@ console.log("route is",route);
                       color: "var(--text-muted)",
                     }}
                   >
-                    M-2 Motorway Expressway
+                   {trip?.route?.RouteDirection}
                   </div>
                 </td>
 
-                <td>10:30 AM → 03:30 PM</td>
+                <td>  {trip?.departureTime} → {trip?.arrivalTime}</td>
 
-                <td>LES-8821 (Yutong)</td>
+                <td>{trip?.bus?.busModel}</td>
 
-                <td>Tariq Mahmood</td>
+                <td>{trip?.driver?.name}</td>
 
                 <td>
                   <span
@@ -213,7 +291,7 @@ console.log("route is",route);
                 </td>
 
                 <td style={{ fontWeight: 700 }}>
-                  PKR 2,500
+                  PKR {trip?.fare}
                 </td>
 
                 <td>
@@ -232,127 +310,10 @@ console.log("route is",route);
                   </button>
                 </td>
               </tr>
+                )
+              })}
+           
 
-              <tr>
-                <td
-                  style={{
-                    fontWeight: 800,
-                    color: "var(--primary)",
-                  }}
-                >
-                  TR-902
-                </td>
-
-                <td>
-                  <strong>Karachi → Lahore</strong>
-
-                  <div
-                    style={{
-                      fontSize: "0.75rem",
-                      color: "var(--text-muted)",
-                    }}
-                  >
-                    M-5 Sukkur-Multan Motorway
-                  </div>
-                </td>
-
-                <td>04:00 PM → 08:20 AM</td>
-
-                <td>KHI-4902 (Daewoo)</td>
-
-                <td>Rashid Ali</td>
-
-                <td>
-                  <span
-                    style={{
-                      color: "#34d399",
-                      fontWeight: 700,
-                    }}
-                  >
-                    8 / 40
-                  </span>
-                </td>
-
-                <td style={{ fontWeight: 700 }}>
-                  PKR 4,200
-                </td>
-
-                <td>
-                  <span className="badge badge-active">
-                    On Route
-                  </span>
-                </td>
-
-                <td>
-                  <a
-                    href="/admin/routes"
-                    className="btn btn-secondary btn-sm"
-                  >
-                    <i className="fa-solid fa-eye"></i> Track
-                  </a>
-                </td>
-              </tr>
-
-              <tr>
-                <td
-                  style={{
-                    fontWeight: 800,
-                    color: "var(--primary)",
-                  }}
-                >
-                  TR-903
-                </td>
-
-                <td>
-                  <strong>Peshawar → Islamabad</strong>
-
-                  <div
-                    style={{
-                      fontSize: "0.75rem",
-                      color: "var(--text-muted)",
-                    }}
-                  >
-                    E-35 Express Highway
-                  </div>
-                </td>
-
-                <td>08:00 PM → 10:15 PM</td>
-
-                <td>ISL-7711 (Sleeper)</td>
-
-                <td>Kamran Shah</td>
-
-                <td>
-                  <span
-                    style={{
-                      color: "#34d399",
-                      fontWeight: 700,
-                    }}
-                  >
-                    22 / 30
-                  </span>
-                </td>
-
-                <td style={{ fontWeight: 700 }}>
-                  PKR 1,800
-                </td>
-
-                <td>
-                  <span className="badge badge-ontime">
-                    Scheduled
-                  </span>
-                </td>
-
-                <td>
-                  <button
-                    className="btn btn-secondary btn-sm"
-                    data-modal-target="createTripModal"
-                  >
-                    <i className="fa-solid fa-pen-to-square"></i>{" "}
-                    Update
-                  </button>
-                </td>
-              </tr>
             </tbody>
           </table>
         </div>
@@ -381,7 +342,7 @@ console.log("route is",route);
       </button>
     </div>
 
-    <form>
+    <form onSubmit={handleOnsubmit}>
       <div
         style={{
           display: "grid",
@@ -476,18 +437,18 @@ console.log("route is",route);
           </label>
 
           <select
-            className="form-control"
-value={bus} onChange={((e)=>{setbus(e.target.value)})}          >
-            {buses.map((bus)=>{
-return(
+  className="form-control"
+  value={bus}
+  onChange={(e) => setbus(e.target.value)}
+>
+  {buses.map((bus) => {
+    return (
       <option value={bus?.busModel} key={bus?._id}>
         {bus?.busModel}
-            </option>
-)
-            })}
-         
-
-          </select>
+      </option>
+    );
+  })}
+</select>
         </div>
 
         <div className="form-group">
