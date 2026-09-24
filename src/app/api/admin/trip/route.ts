@@ -118,7 +118,6 @@ export async function GET(){
  },{
   status:200
  })
-
   } catch (error) {
     return NextResponse.json({
       message:"error in fetching apis",error,

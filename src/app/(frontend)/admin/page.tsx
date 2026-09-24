@@ -2,7 +2,6 @@
 "use client";
 
 import AdminSidebar from "@/frontendComponents/AdminSidebar";
-import { protect } from "@/utils/auth";
 import { useSession } from "next-auth/react";
 import React from "react";
 

@@ -48,6 +48,8 @@ export async function  POST(req:Request){
     {status:400}) 
 
   }
+
+
   const bus=await Bus.findById(UserTrip?.bus);
 
     if (!bus) {
@@ -110,18 +112,9 @@ const totalFare = UserTrip.fare * seatNumber.length;
  
    
 
-
-
-  // if(isNotAvailable){
-  //   return NextResponse.json({
-  //     message:"seat is already occupied try another one",
-  //     success:false,
-  //   },{
-  //     status:400
-  //   })
-  // }
-
   } catch (error) {
+    console.log("error",error)
+
     return NextResponse.json({
       message:"error in booking ",error,
       success:false

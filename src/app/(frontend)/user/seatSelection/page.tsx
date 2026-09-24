@@ -1,7 +1,96 @@
+"use client";
+
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 import UserHeader from '@/frontendComponents/UserHeader'
 import React from 'react'
+import api from "@/utilsFrontend/axios";
+import { useSession } from "next-auth/react";
+type Trip = {
+  _id:string,
+  departureDate: string;
+  arrivalTime: string;
+  departureTime: string;
+  fare: number;
+  driver: string;
+  bus: string;
+  route: string;
+};
 
 function SeatSelection() {
+  const session=useSession();
+  const data=session?.data;
+const searchParams = useSearchParams();
+const tripId = searchParams.get("tripId");
+const [trip, setTrip] = useState<Trip | null>(null);  
+const [seatNumber, setSelectedSeats] = useState<number[]>([]);
+
+const handleSeatClick = (seatNumber: number) => {
+  setSelectedSeats((prev) => {
+    if (prev.includes(seatNumber)) {
+      return prev.filter((seat) => seat !== seatNumber);
+    }
+
+    return [...prev, seatNumber];
+  });
+};
+
+
+  useEffect(() => {
+  if (!tripId) return;
+
+  const fetchTrip = async () => {
+    try {
+      const response = await api.get(`/admin/trip/${tripId}`);
+
+      if (response.status === 200) {
+        setTrip(response.data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching trip:", error);
+    }
+  };
+
+  fetchTrip();
+}, [tripId]);
+
+ let TotalFare;
+if(!trip?.fare){
+   TotalFare=0
+}
+else{
+ TotalFare=(trip?.fare)*(seatNumber.length)
+}
+const handleSubmit = async (e:React.FormEvent) => {
+  e.preventDefault();
+  if (!tripId) {
+    console.error("Trip ID not found");
+    return;
+  }
+  if (seatNumber.length === 0) {
+    alert("Please select at least one seat");
+    return;
+  }
+
+  try {
+    const response = await api.post("/user/booking", {
+      trip: tripId,
+      seatNumber
+    });
+
+    if (response.status === 201) {
+      alert("Booking successful!");
+
+      console.log("Booking:", response.data.data);
+
+      setSelectedSeats([]);
+    }
+  } catch (error) {
+    console.error("Booking error:", error);
+      alert("Booking failed!");
+};
+
+}
   return (
    <>
    <UserHeader/>
@@ -45,257 +134,157 @@ function SeatSelection() {
           }}
         >
           {/* Left: Seat Layout */}
-          <div
-            className="card"
-            style={{ textAlign: "center" }}
-          >
-            <h3
-              style={{
-                fontSize: "1.1rem",
-                fontWeight: 700,
-                marginBottom: "1.5rem",
-                color: "#fff",
-              }}
-            >
-              <i
-                className="fa-solid fa-bus-simple"
-                style={{ color: "var(--primary)" }}
-              ></i>{" "}
-              Bus Seating Layout
-            </h3>
+      <div
+  className="card"
+  style={{ textAlign: "center" }}
+>
+  <h3
+    style={{
+      fontSize: "1.1rem",
+      fontWeight: 700,
+      marginBottom: "1.5rem",
+      color: "#fff",
+    }}
+  >
+    <i
+      className="fa-solid fa-bus-simple"
+      style={{ color: "var(--primary)" }}
+    ></i>{" "}
+    Bus Seating Layout
+  </h3>
 
-            <div className="seat-bus-container">
-              {/* Driver */}
-              <div className="driver-section">
+  <div className="seat-bus-container">
+
+    {/* Driver */}
+    <div className="driver-section">
+      <div
+        className="driver-icon"
+        title="Driver Area"
+      >
+        <i className="fa-solid fa-dharmachakra"></i>
+      </div>
+    </div>
+
+    {/* Seat Grid */}
+    <div className="seats-grid">
+
+      {Array.from(
+        { length: Math.ceil((trip?.bus?.totalSeat || 0) / 4) },
+        (_, rowIndex) => {
+          const startSeat = rowIndex * 4 + 1;
+
+          return (
+            <React.Fragment key={rowIndex}>
+
+              {/* Seat 1 */}
+              {startSeat <= (trip?.bus?.totalSeat || 0) && (
                 <div
-                  className="driver-icon"
-                  title="Driver Area"
+                  className={`seat ${
+                    seatNumber.includes(startSeat)
+                      ? "selected"
+                      : "available"
+                  }`}
+                  onClick={() => handleSeatClick(startSeat)}
                 >
-                  <i className="fa-solid fa-dharmachakra"></i>
+                  {startSeat}
                 </div>
-              </div>
+              )}
 
-              {/* Seat Grid */}
-              <div className="seats-grid">
-                {/* Row 1 */}
-                <div className="seat available" data-seat="1A">
-                  1A
+              {/* Seat 2 */}
+              {startSeat + 1 <= (trip?.bus?.totalSeat || 0) && (
+                <div
+                  className={`seat ${
+                    seatNumber.includes(startSeat + 1)
+                      ? "selected"
+                      : "available"
+                  }`}
+                  onClick={() => handleSeatClick(startSeat + 1)}
+                >
+                  {startSeat + 1}
                 </div>
-                <div className="seat available" data-seat="1B">
-                  1B
-                </div>
-                <div className="aisle"></div>
-                <div className="seat available" data-seat="1C">
-                  1C
-                </div>
-                <div className="seat available" data-seat="1D">
-                  1D
-                </div>
+              )}
 
-                {/* Row 2 */}
-                <div className="seat available" data-seat="2A">
-                  2A
-                </div>
-                <div className="seat available" data-seat="2B">
-                  2B
-                </div>
-                <div className="aisle"></div>
-                <div className="seat booked" data-seat="2C">
-                  2C
-                </div>
-                <div className="seat booked" data-seat="2D">
-                  2D
-                </div>
+              {/* Aisle */}
+              <div className="aisle"></div>
 
-                {/* Row 3 */}
-                <div className="seat available" data-seat="3A">
-                  3A
+              {/* Seat 3 */}
+              {startSeat + 2 <= (trip?.bus?.totalSeat || 0) && (
+                <div
+                  className={`seat ${
+                    seatNumber.includes(startSeat + 2)
+                      ? "selected"
+                      : "available"
+                  }`}
+                  onClick={() => handleSeatClick(startSeat + 2)}
+                >
+                  {startSeat + 2}
                 </div>
-                <div className="seat available" data-seat="3B">
-                  3B
-                </div>
-                <div className="aisle"></div>
-                <div className="seat booked" data-seat="3C">
-                  3C
-                </div>
-                <div className="seat available" data-seat="3D">
-                  3D
-                </div>
+              )}
 
-                {/* Row 4 */}
-                <div className="seat available" data-seat="4A">
-                  4A
+              {/* Seat 4 */}
+              {startSeat + 3 <= (trip?.bus?.totalSeat || 0) && (
+                <div
+                  className={`seat ${
+                    seatNumber.includes(startSeat + 3)
+                      ? "selected"
+                      : "available"
+                  }`}
+                  onClick={() => handleSeatClick(startSeat + 3)}
+                >
+                  {startSeat + 3}
                 </div>
-                <div className="seat available" data-seat="4B">
-                  4B
-                </div>
-                <div className="aisle"></div>
-                <div className="seat available" data-seat="4C">
-                  4C
-                </div>
-                <div className="seat available" data-seat="4D">
-                  4D
-                </div>
+              )}
 
-                {/* Row 5 */}
-                <div className="seat available" data-seat="5A">
-                  5A
-                </div>
-                <div className="seat available" data-seat="5B">
-                  5B
-                </div>
-                <div className="aisle"></div>
-                <div className="seat available" data-seat="5C">
-                  5C
-                </div>
-                <div className="seat available" data-seat="5D">
-                  5D
-                </div>
+            </React.Fragment>
+          );
+        }
+      )}
 
-                {/* Row 6 */}
-                <div className="seat available" data-seat="6A">
-                  6A
-                </div>
-                <div className="seat available" data-seat="6B">
-                  6B
-                </div>
-                <div className="aisle"></div>
-                <div className="seat booked" data-seat="6C">
-                  6C
-                </div>
-                <div className="seat booked" data-seat="6D">
-                  6D
-                </div>
+    </div>
 
-                {/* Row 7 */}
-                <div className="seat available" data-seat="7A">
-                  7A
-                </div>
-                <div className="seat available" data-seat="7B">
-                  7B
-                </div>
-                <div className="aisle"></div>
-                <div className="seat booked" data-seat="7C">
-                  7C
-                </div>
-                <div className="seat available" data-seat="7D">
-                  7D
-                </div>
+    {/* Seat Legend */}
+    <div className="seat-legend">
 
-                {/* Row 8 */}
-                <div className="seat available" data-seat="8A">
-                  8A
-                </div>
-                <div className="seat available" data-seat="8B">
-                  8B
-                </div>
-                <div className="aisle"></div>
-                <div className="seat available" data-seat="8C">
-                  8C
-                </div>
-                <div className="seat available" data-seat="8D">
-                  8D
-                </div>
+      <div className="legend-item">
+        <div
+          className="legend-box"
+          style={{
+            background: "rgba(16, 185, 129, 0.2)",
+            border: "1px solid #10b981",
+          }}
+        ></div>
+        Available
+      </div>
 
-                {/* Row 9 */}
-                <div className="seat available" data-seat="9A">
-                  9A
-                </div>
-                <div className="seat available" data-seat="9B">
-                  9B
-                </div>
-                <div className="aisle"></div>
-                <div className="seat available" data-seat="9C">
-                  9C
-                </div>
-                <div className="seat available" data-seat="9D">
-                  9D
-                </div>
+      <div className="legend-item">
+        <div
+          className="legend-box"
+          style={{
+            background: "var(--primary)",
+          }}
+        ></div>
+        Selected
+      </div>
 
-                {/* Row 10 */}
-                <div className="seat available" data-seat="10A">
-                  10A
-                </div>
-                <div className="seat available" data-seat="10B">
-                  10B
-                </div>
-                <div className="aisle"></div>
-                <div className="seat available" data-seat="10C">
-                  10C
-                </div>
-                <div className="seat available" data-seat="10D">
-                  10D
-                </div>
+      <div className="legend-item">
+        <div
+          className="legend-box"
+          style={{
+            background: "#1e293b",
+            border: "1px solid #334155",
+          }}
+        ></div>
+        Booked
+      </div>
 
-                {/* Row 11 */}
-                <div className="seat available" data-seat="11A">
-                  11A
-                </div>
-                <div className="seat available" data-seat="11B">
-                  11B
-                </div>
-                <div className="aisle"></div>
-                <div className="seat available" data-seat="11C">
-                  11C
-                </div>
-                <div className="seat available" data-seat="11D">
-                  11D
-                </div>
+    </div>
 
-                {/* Row 12 */}
-                <div className="seat selected" data-seat="12A">
-                  12A
-                </div>
-                <div className="seat available" data-seat="12B">
-                  12B
-                </div>
-                <div className="aisle"></div>
-                <div className="seat available" data-seat="12C">
-                  12C
-                </div>
-                <div className="seat available" data-seat="12D">
-                  12D
-                </div>
-              </div>
-
-              {/* Seat Legend */}
-              <div className="seat-legend">
-                <div className="legend-item">
-                  <div
-                    className="legend-box"
-                    style={{
-                      background: "rgba(16, 185, 129, 0.2)",
-                      border: "1px solid #10b981",
-                    }}
-                  ></div>
-                  Available
-                </div>
-
-                <div className="legend-item">
-                  <div
-                    className="legend-box"
-                    style={{
-                      background: "var(--primary)",
-                    }}
-                  ></div>
-                  Selected
-                </div>
-
-                <div className="legend-item">
-                  <div
-                    className="legend-box"
-                    style={{
-                      background: "#1e293b",
-                      border: "1px solid #334155",
-                    }}
-                  ></div>
-                  Booked
-                </div>
-              </div>
-            </div>
-          </div>
+  </div>
+</div>
 
           {/* Right: Booking Summary */}
+         <form onSubmit={handleSubmit}>
+
           <div
             className="card"
             style={{
@@ -351,7 +340,7 @@ function SeatSelection() {
                     color: "#fff",
                   }}
                 >
-                  Ahmed Khan (1 Adult)
+                 {data?.user?.name}
                 </span>
               </div>
 
@@ -383,7 +372,7 @@ function SeatSelection() {
                     color: "#fff",
                   }}
                 >
-                  Lahore → Islamabad
+                 {trip?.route?.Routename}
                 </span>
               </div>
 
@@ -409,14 +398,14 @@ function SeatSelection() {
                   Selected Seat(s)
                 </span>
 
-                <span
-                  style={{
-                    fontWeight: 700,
-                    color: "var(--primary)",
-                  }}
-                >
-                  12A
-                </span>
+  <span
+  style={{
+    fontWeight: 700,
+    color: "var(--primary)",
+  }}
+>
+  {seatNumber.map((seat) => `${seat}`).join(", ")}
+</span>
               </div>
 
               {/* Bus Service */}
@@ -479,7 +468,13 @@ function SeatSelection() {
                     color: "#fff",
                   }}
                 >
-                  20 September 2025
+                 {trip?.departureDate
+  ? new Date(trip.departureDate).toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    })
+  : ""}
                 </span>
               </div>
 
@@ -511,7 +506,7 @@ function SeatSelection() {
                     color: "#fff",
                   }}
                 >
-                  10:30 AM - 03:30 PM
+                 {trip?.departureTime} - {trip?.arrivalTime}
                 </span>
               </div>
 
@@ -540,14 +535,13 @@ function SeatSelection() {
                     color: "var(--primary)",
                   }}
                 >
-                  PKR 2,500
+                  PKR {TotalFare}
                 </span>
               </div>
             </div>
 
             {/* Confirm Booking */}
-            <a
-              href="/user/ticket"
+            <button
               className="btn btn-primary"
               style={{
                 width: "100%",
@@ -558,8 +552,10 @@ function SeatSelection() {
             >
               Confirm Booking{" "}
               <i className="fa-solid fa-arrow-right"></i>
-            </a>
+            </button>
           </div>
+         </form>
+          
         </div>
       </div>
     </main>

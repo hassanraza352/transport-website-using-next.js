@@ -362,14 +362,15 @@ GetAllTips();
                 PKR {trip?.fare}
               </div>
 
-              <a
-                href="/user/seat-selection"
-                className="btn btn-primary"
-                style={{ width: "100%" }}
-              >
-                View Details{" "}
-                <i className="fa-solid fa-arrow-right"></i>
-              </a>
+            <a
+ href={`/user/seatSelection?tripId=${trip._id}`}
+   className="btn btn-primary"
+  style={{ width: "100%" }}
+>
+  View Details{" "}
+  <i className="fa-solid fa-arrow-right"></i>
+</a>
+
             </div>
           </div>
            )

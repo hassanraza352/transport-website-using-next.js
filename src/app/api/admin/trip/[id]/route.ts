@@ -4,10 +4,8 @@ import connect from "@/utils/db";
 import { NextResponse } from "next/server";
 
 export async function GET(req:Request, { params }: { params: Promise<{ id: string }> })
-
 {
   try {
-   await  protect("admin")
     const {id}=await params;
     if(!id){
 
