@@ -103,11 +103,10 @@ success:false
     })
   }
 }
+
 // get all the trips
 export async function GET(){
-  try {
-  await protect("admin");
-  
+  try {  
   await connect();
 
   const Alltrips=await Trip.find().populate("bus").populate("route").populate("driver");
@@ -129,3 +128,4 @@ export async function GET(){
     })
   }
 }
+

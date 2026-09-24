@@ -1,8 +1,18 @@
+'use client'
+
 import UserHeader from '@/frontendComponents/UserHeader'
+import { useSession } from 'next-auth/react';
 import React from 'react'
 
 function Profile() {
+
+    const session=useSession();
+  
+  const data=session?.data;
+
   return (
+
+
    <>
    <UserHeader/>
 <main className="main-wrapper" style={{ padding: "2.5rem 1.5rem" }}>
@@ -41,7 +51,7 @@ function Profile() {
                 color: "#fff",
               }}
             >
-              Ahmed Khan
+             {data?.user?.name}
             </h1>
 
             <span className="badge badge-active">
@@ -57,8 +67,8 @@ function Profile() {
             }}
           >
             <i className="fa-regular fa-envelope"></i>{" "}
-            ahmed.khan@gmail.com &bull;{" "}
-            <i className="fa-solid fa-phone"></i> +92 300 1234567
+                        {data?.user?.email} &bull;{" "}
+            <i className="fa-solid fa-phone"></i> {data?.user?.phoneNO}
           </p>
         </div>
       </div>

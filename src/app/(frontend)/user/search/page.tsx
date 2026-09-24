@@ -1,8 +1,94 @@
+'use client'
 import UserHeader from '@/frontendComponents/UserHeader'
-import React from 'react'
+import api from '@/utilsFrontend/axios';
+import React, { useEffect, useState } from 'react'
+
+type Routes = {
+  _id: string;
+  Routename: string;
+  startLocation: string;
+  endLocation: string;
+  RouteDirection: string;
+};
+type Trip = {
+  _id:string,
+  departureDate: string;
+  arrivalTime: string;
+  departureTime: string;
+  fare: number;
+  driver: string;
+  bus: string;
+  route: string;
+};
 
 function Search() {
+
+const [busRoutes,setbusRoutes]=useState<Routes[]>([]);
+const [route,setroute]=useState("");
+const [date, setDate] = useState("");
+const [trips, setTrips] = useState<Trip[]>([]);
+console.log("trips are",trips);
+console.log("date is ",date)
+
+
+     const fetchAllRoutes = async () => {
+        try {
+          const response = await api.get("/admin/route");
+          if (response.status === 200) {
+            setbusRoutes(response.data.data);
+          } else {
+            console.error("Error fetching routes:", response.data.message);
+          }
+        } catch (error) {
+          console.error("Error fetching routes:", error);
+        }
+      };
+
+
+       const GetAllTips=async ()=>{
+      try {
+        const response=await api.get("/admin/trip");
+        if(response?.status===200){
+             setTrips(response?.data?.data)
+        }
+        else{
+        console.log("error  in getting trips response")
+        }
+      } catch (error) {
+        console.log("error  in getting all trips")
+      }
+        }
+  
+  useEffect(()=>{
+  fetchAllRoutes();
+GetAllTips();
+    }
+  ,[])
+
+    useEffect(() => {
+    if (busRoutes.length > 0) {
+      setroute(busRoutes[0].Routename);
+    }
+  }, [busRoutes]);
+
+  
+  const handleSubmit=async()=>{
+   try {
+    const response = await api.get(
+      `/admin/trip/route?routeName=${route}&date=${date}`
+    );
+
+    if (response.status === 200) {
+      setTrips(response.data.data);
+    }
+  } catch (error) {
+    console.error("Error fetching trips:", error);
+  }
+  }
+
   return (
+
+
   <>
     <UserHeader/>
 
@@ -59,25 +145,6 @@ function Search() {
               alignItems: "end",
             }}
           >
-            {/* From */}
-            <div
-              className="form-group"
-              style={{ marginBottom: 0 }}
-            >
-              <label className="form-label">
-                <i
-                  className="fa-solid fa-location-dot"
-                  style={{ color: "var(--primary)" }}
-                ></i>{" "}
-                From
-              </label>
-
-              <select className="form-control">
-                <option value="Lahore">Lahore</option>
-                <option value="Islamabad">Islamabad</option>
-                <option value="Karachi">Karachi</option>
-              </select>
-            </div>
 
             {/* To */}
             <div
@@ -89,13 +156,17 @@ function Search() {
                   className="fa-solid fa-location-arrow"
                   style={{ color: "var(--primary)" }}
                 ></i>{" "}
-                To
+              Route Name
               </label>
 
-              <select className="form-control">
-                <option value="Islamabad">Islamabad</option>
-                <option value="Lahore">Lahore</option>
-                <option value="Karachi">Karachi</option>
+              <select className="form-control"  value={route} onChange={(e)=>{setroute(e.target.value)}}>
+                {busRoutes?.map((route)=>{
+              return (
+                   <option value={route?.Routename} key={route?._id}>
+               {route?.Routename}
+            </option>
+              )
+            })}
               </select>
             </div>
 
@@ -113,18 +184,18 @@ function Search() {
               </label>
 
               <input
-                type="text"
+               value={date}
+                type="date"
                 className="form-control"
-                value="20 September"
-                readOnly
-              />
+                onChange={(e)=>{setDate(e.target.value)}}    
+               />
             </div>
 
-            <button
+            <button onClick={handleSubmit}
               type="button"
               className="btn btn-primary"
-              style={{ height: "48px" }}
-            >
+              style={{ height: "48px" }}>
+
               Search Buses{" "}
               <i className="fa-solid fa-arrow-right"></i>
             </button>
@@ -146,7 +217,7 @@ function Search() {
               fontWeight: 700,
             }}
           >
-            Available Buses
+            Available trips
           </h3>
 
           <span
@@ -155,20 +226,21 @@ function Search() {
               fontSize: "0.9rem",
             }}
           >
-            3 results found
+            {trips?.length} results found
           </span>
         </div>
 
         {/* Bus Listings */}
-        <div
+      < div
           style={{
             display: "flex",
             flexDirection: "column",
             gap: "1.5rem",
           }}
-        >
-          {/* Bus Card 1 */}
-          <div
+             >
+          {trips?.map((trip)=>{
+           return(
+             <div key={trip?._id}
             className="card"
             style={{
               display: "flex",
@@ -212,11 +284,11 @@ function Search() {
                       fontWeight: 800,
                     }}
                   >
-                    GoRide Express
+                    {trip?.bus?.busModel}
                   </h3>
 
                   <span className="badge badge-confirmed">
-                    Luxury Coach
+                    {trip?.route?.Routename}
                   </span>
                 </div>
 
@@ -227,7 +299,7 @@ function Search() {
                     marginBottom: "0.75rem",
                   }}
                 >
-                  Premium • AC Coach • Wi-Fi • Recliner Seats
+                  {trip?.bus?.coachType} • Wi-Fi • Recliner Seats
                 </p>
 
                 <div
@@ -244,7 +316,7 @@ function Search() {
                       className="fa-regular fa-clock"
                       style={{ color: "var(--primary)" }}
                     ></i>{" "}
-                    <strong>10:30 AM - 3:30 PM</strong>
+                    <strong>{trip?.departureTime} - {trip?.arrivalTime}</strong>
                   </div>
 
                   <div style={{ color: "var(--text-muted)" }}>
@@ -258,7 +330,7 @@ function Search() {
                     }}
                   >
                     <i className="fa-solid fa-couch"></i>{" "}
-                    14 seats available
+                    14/{trip?.bus?.totalSeat} seats available
                   </div>
                 </div>
               </div>
@@ -287,7 +359,7 @@ function Search() {
                   marginBottom: "0.75rem",
                 }}
               >
-                PKR 2,500
+                PKR {trip?.fare}
               </div>
 
               <a
@@ -300,277 +372,11 @@ function Search() {
               </a>
             </div>
           </div>
+           )
+          })}
 
-          {/* Bus Card 2 */}
-          <div
-            className="card"
-            style={{
-              display: "flex",
-              gap: "1.5rem",
-              flexWrap: "wrap",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                gap: "1.5rem",
-                alignItems: "center",
-                flexWrap: "wrap",
-              }}
-            >
-              <img
-                src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&w=400&q=80"
-                alt="Bus Interior"
-                style={{
-                  width: "160px",
-                  height: "110px",
-                  borderRadius: "12px",
-                  objectFit: "cover",
-                }}
-              />
 
-              <div>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    marginBottom: "6px",
-                  }}
-                >
-                  <h3
-                    style={{
-                      fontSize: "1.3rem",
-                      fontWeight: 800,
-                    }}
-                  >
-                    Daewoo Gold Executive
-                  </h3>
 
-                  <span className="badge badge-active">
-                    Executive
-                  </span>
-                </div>
-
-                <p
-                  style={{
-                    color: "var(--text-muted)",
-                    fontSize: "0.85rem",
-                    marginBottom: "0.75rem",
-                  }}
-                >
-                  Executive Lounge • AC Coach • Refreshments • USB Ports
-                </p>
-
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "1.5rem",
-                    color: "var(--text-main)",
-                    fontSize: "0.95rem",
-                  }}
-                >
-                  <div>
-                    <i
-                      className="fa-regular fa-clock"
-                      style={{ color: "var(--primary)" }}
-                    ></i>{" "}
-                    <strong>01:00 PM - 05:45 PM</strong>
-                  </div>
-
-                  <div style={{ color: "var(--text-muted)" }}>
-                    <i className="fa-solid fa-route"></i>{" "}
-                    4h 45m duration
-                  </div>
-
-                  <div
-                    style={{
-                      color: "#34d399",
-                      fontWeight: 600,
-                    }}
-                  >
-                    <i className="fa-solid fa-couch"></i>{" "}
-                    8 seats available
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div
-              style={{
-                textAlign: "right",
-                minWidth: "180px",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: "0.8rem",
-                  color: "var(--text-muted)",
-                }}
-              >
-                Per Person
-              </div>
-
-              <div
-                style={{
-                  fontSize: "1.8rem",
-                  fontWeight: 800,
-                  color: "#fff",
-                  marginBottom: "0.75rem",
-                }}
-              >
-                PKR 2,800
-              </div>
-
-              <a
-                href="/user/seat-selection"
-                className="btn btn-primary"
-                style={{ width: "100%" }}
-              >
-                View Details{" "}
-                <i className="fa-solid fa-arrow-right"></i>
-              </a>
-            </div>
-          </div>
-
-          {/* Bus Card 3 */}
-          <div
-            className="card"
-            style={{
-              display: "flex",
-              gap: "1.5rem",
-              flexWrap: "wrap",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                gap: "1.5rem",
-                alignItems: "center",
-                flexWrap: "wrap",
-              }}
-            >
-              <img
-                src="https://images.unsplash.com/photo-1570125909232-eb263c188f7e?auto=format&fit=crop&w=400&q=80"
-                alt="Bus Interior"
-                style={{
-                  width: "160px",
-                  height: "110px",
-                  borderRadius: "12px",
-                  objectFit: "cover",
-                }}
-              />
-
-              <div>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    marginBottom: "6px",
-                  }}
-                >
-                  <h3
-                    style={{
-                      fontSize: "1.3rem",
-                      fontWeight: 800,
-                    }}
-                  >
-                    Yutong Sleeper Coach
-                  </h3>
-
-                  <span className="badge badge-pending">
-                    Sleeper
-                  </span>
-                </div>
-
-                <p
-                  style={{
-                    color: "var(--text-muted)",
-                    fontSize: "0.85rem",
-                    marginBottom: "0.75rem",
-                  }}
-                >
-                  Full Sleeper Berth • Wi-Fi • Blanket & Pillow •
-                  Refreshments
-                </p>
-
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "1.5rem",
-                    color: "var(--text-main)",
-                    fontSize: "0.95rem",
-                  }}
-                >
-                  <div>
-                    <i
-                      className="fa-regular fa-clock"
-                      style={{ color: "var(--primary)" }}
-                    ></i>{" "}
-                    <strong>08:00 PM - 12:30 AM</strong>
-                  </div>
-
-                  <div style={{ color: "var(--text-muted)" }}>
-                    <i className="fa-solid fa-route"></i>{" "}
-                    4h 30m duration
-                  </div>
-
-                  <div
-                    style={{
-                      color: "#34d399",
-                      fontWeight: 600,
-                    }}
-                  >
-                    <i className="fa-solid fa-couch"></i>{" "}
-                    5 seats available
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div
-              style={{
-                textAlign: "right",
-                minWidth: "180px",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: "0.8rem",
-                  color: "var(--text-muted)",
-                }}
-              >
-                Per Person
-              </div>
-
-              <div
-                style={{
-                  fontSize: "1.8rem",
-                  fontWeight: 800,
-                  color: "#fff",
-                  marginBottom: "0.75rem",
-                }}
-              >
-                PKR 3,200
-              </div>
-
-              <a
-                href="/user/seat-selection"
-                className="btn btn-primary"
-                style={{ width: "100%" }}
-              >
-                View Details{" "}
-                <i className="fa-solid fa-arrow-right"></i>
-              </a>
-            </div>
-          </div>
         </div>
       </div>
     </main>

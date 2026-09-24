@@ -31,7 +31,7 @@ function UserHeader() {
             </Link>
           </li>
           <li>
-            <Link href="user/about" className={path==="/user/about" ? "active":""}>
+            <Link href="/user/about" className={path==="/user/about" ? "active":""}>
               About
             </Link>
           </li>

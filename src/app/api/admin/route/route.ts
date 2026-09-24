@@ -54,7 +54,6 @@ return NextResponse.json({
 
 export async function GET(){
   try {
-    await protect("admin");
     await connect();
 
     const Allroutes=await Busroute.find().sort({createdAt:-1});

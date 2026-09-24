@@ -1,7 +1,7 @@
 import AdminSidebar from '@/frontendComponents/AdminSidebar'
 import React from 'react'
 
-function page() {
+function User() {
   return (
     <>
     <div className="admin-layout">
@@ -40,12 +40,12 @@ function page() {
           <i className="fa-solid fa-download"></i> Export
         </button>
 
-        <button
+        {/* <button
           className="btn btn-primary btn-sm"
           data-modal-target="addUserModal"
         >
           <i className="fa-solid fa-plus"></i> Add User
-        </button>
+        </button> */}
       </div>
     </header>
 
@@ -650,7 +650,7 @@ function page() {
   </div>
 
   {/* Add User Modal */}
-
+{/* 
   <div className="modal-overlay" id="addUserModal">
     <div className="modal-container">
       <div className="modal-header">
@@ -742,10 +742,10 @@ function page() {
         </div>
       </form>
     </div>
-  </div>
+  </div> */}
 </div>
     </>
   )
 }
 
-export default page
+export default User

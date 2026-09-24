@@ -54,6 +54,7 @@ export const authOptions:NextAuthOptions={
           name: user.name,
           email: user.email,
           role: user.role,
+          phoneNO:user.phoneNO
         };
       }
 
@@ -69,6 +70,7 @@ strategy:"jwt",
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        token.phoneNO = user.phoneNO;
       }
 
       return token;
@@ -78,6 +80,8 @@ strategy:"jwt",
       if (session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
+        session.user.phoneNO = token.phoneNO as string;
+
       }
 
       return session;

@@ -5,7 +5,7 @@ export async function proxy(req: NextRequest) {
   const pathname = req.nextUrl.pathname;
 
   // Public login pages
-  if (pathname === "/user/login" || pathname === "/admin/login" || pathname==="/"
+  if (pathname === "/user/login" || pathname === "/user/signup" || pathname === "/admin/login" || pathname==="/"
   ) {
     return NextResponse.next();
   }
