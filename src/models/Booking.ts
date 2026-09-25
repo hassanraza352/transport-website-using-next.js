@@ -16,11 +16,11 @@ const bookingSchema=new mongoose.Schema({
     enum:["pending","confirmed","cancelled","refunded"],
     default: "pending"
    },
-    seatNumber:[{
-    type:Number,
-    enum:["available","booked"],
-    required:true
-   }],
+ seatNumber: [{
+  type: Number,
+  required: true
+}],
+
    bookingfare:{
 type:Number
    }

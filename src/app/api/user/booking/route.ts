@@ -125,3 +125,51 @@ const totalFare = UserTrip.fare * seatNumber.length;
 
 
 }
+
+
+
+export async function GET() {
+  try {
+    const session = await protect("user");
+
+    await connect();
+
+    const bookings = await Booking.find({
+      user: session.user.id,
+    })
+      .populate({
+        path: "trip",
+        populate: [
+          {
+            path: "bus",
+          },
+          {
+            path: "route",
+          },
+          {
+            path: "driver",
+          },
+        ],
+      })
+      .sort({ createdAt: -1 });
+
+    return NextResponse.json(
+      {
+        message: "Bookings fetched successfully",
+        success: true,
+        data: bookings,
+      },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.log("Error fetching bookings:", error);
+
+    return NextResponse.json(
+      {
+        message: "Error fetching bookings",
+        success: false,
+      },
+      { status: 500 }
+    );
+  }
+}

@@ -1,14 +1,36 @@
 'use client'
 
 import UserHeader from '@/frontendComponents/UserHeader'
+import api from '@/utilsFrontend/axios';
 import { useSession } from 'next-auth/react';
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 function Profile() {
+
+  const [bookings, setBookings] = useState<any[]>([]);
+
+useEffect(() => {
+  const fetchBookings = async () => {
+    try {
+      const response = await api.get("/user/booking");
+
+      if (response.status === 200) {
+        setBookings(response.data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching bookings:", error);
+    }
+  };
+
+  fetchBookings();
+}, []);
+console.log("bookings",bookings)
 
     const session=useSession();
   
   const data=session?.data;
+
+  
 
   return (
 

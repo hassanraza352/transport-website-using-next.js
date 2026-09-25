@@ -1,12 +1,46 @@
-import UserHeader from '@/frontendComponents/UserHeader'
-import React from 'react'
-import "@/frontendComponents/ticketPage.css"
+'use client'
 
-function page() {
+
+import UserHeader from '@/frontendComponents/UserHeader'
+import React, { useEffect, useState } from 'react'
+import "@/frontendComponents/ticketPage.css"
+import { useParams } from 'next/navigation';
+import api from '@/utilsFrontend/axios';
+
+function Ticket() {
+    const params = useParams();
+  const id = params.id as string;
+
+  const [booking, setBooking] = useState<any>(null);
+
+   useEffect(() => {
+    const fetchBooking = async () => {
+      try {
+        const response = await api.get(`/user/booking/${id}`);
+
+        if (response.status === 200) {
+          setBooking(response.data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching ticket:", error);
+      }
+    };
+
+    if (id) {
+      fetchBooking();
+    }
+  }, [id]);
+
+  if (!booking) {
+    return <div>Loading ticket...</div>;
+  }
+
+  console.log("booking",booking);
+
+
   return (
     <>
     <UserHeader/>
-
     <main
       className="main-wrapper"
       style={{
@@ -78,7 +112,7 @@ function page() {
                 letterSpacing: "1px",
               }}
             >
-              GR-829451
+              {booking?._id}
             </strong>
           </div>
         </div>
@@ -150,7 +184,7 @@ function page() {
                   color: "#fff",
                 }}
               >
-                Lahore
+                {booking?.trip?.route?.startLocation}
               </div>
             </div>
 
@@ -190,7 +224,8 @@ function page() {
                   marginTop: "4px",
                 }}
               >
-                Lahore to Islamabad
+            {booking?.trip?.route?.Routename}
+
               </div>
             </div>
 
@@ -215,7 +250,8 @@ function page() {
                   color: "#fff",
                 }}
               >
-                Islamabad
+                 {booking?.trip?.route?.endLocation}
+
               </div>
             </div>
           </div>
@@ -250,8 +286,7 @@ function page() {
                   color: "var(--primary)",
                 }}
               >
-                12A
-              </div>
+{booking?.seatNumber?.map((seat: number) => seat).join(", ")}              </div>
             </div>
 
             <div>
@@ -271,8 +306,13 @@ function page() {
                   color: "#fff",
                 }}
               >
-                20 Sep 2025
-              </div>
+{booking?.trip?.departureDate
+  ? new Date(booking.trip.departureDate).toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    })
+  : ""}              </div>
             </div>
 
             <div>
@@ -292,7 +332,8 @@ function page() {
                   color: "#fff",
                 }}
               >
-                10:30 AM
+               {booking?.trip?.departureTime}
+
               </div>
             </div>
           </div>
@@ -364,4 +405,4 @@ function page() {
   )
 }
 
-export default page
+export default Ticket

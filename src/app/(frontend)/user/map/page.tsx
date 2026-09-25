@@ -1,7 +1,9 @@
+import LiveMap from '@/frontendComponents/LiveMap'
 import UserHeader from '@/frontendComponents/UserHeader'
 import React from 'react'
 
 function Map() {
+  
   return (
     <>
    <UserHeader/>
@@ -210,7 +212,7 @@ function Map() {
             position: "relative",
           }}
         >
-          <canvas id="routeMapCanvas"></canvas>
+        <LiveMap />
 
           {/* Floating Legend Panel */}
           <div

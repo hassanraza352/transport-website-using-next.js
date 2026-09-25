@@ -6,6 +6,7 @@ import UserHeader from '@/frontendComponents/UserHeader'
 import React from 'react'
 import api from "@/utilsFrontend/axios";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 type Trip = {
   _id:string,
   departureDate: string;
@@ -18,6 +19,7 @@ type Trip = {
 };
 
 function SeatSelection() {
+   const router=useRouter()
   const session=useSession();
   const data=session?.data;
 const searchParams = useSearchParams();
@@ -78,13 +80,14 @@ const handleSubmit = async (e:React.FormEvent) => {
       seatNumber
     });
 
-    if (response.status === 201) {
-      alert("Booking successful!");
+  if (response.status === 201) {
+  alert("Booking successful!");
 
-      console.log("Booking:", response.data.data);
+  console.log("Booking:", response.data.data);
 
-      setSelectedSeats([]);
-    }
+  setSelectedSeats([]);
+  router.push(`/user/ticket/${response.data.data._id}`);
+}
   } catch (error) {
     console.error("Booking error:", error);
       alert("Booking failed!");

@@ -1,7 +1,46 @@
 import UserHeader from '@/frontendComponents/UserHeader'
-import React from 'react'
+import api from '@/utilsFrontend/axios';
+import { useParams } from 'next/navigation';
+import React, { useEffect, useState } from 'react'
 
 function Booking_detail() {
+
+  const params = useParams();
+
+  const id = params.id as string;
+
+  const [booking, setBooking] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const getBooking = async () => {
+      try {
+        const response = await api.get(`/user/booking/${id}`);
+
+        if (response.status === 200) {
+          setBooking(response.data.data);
+        }
+      } catch (error) {
+        console.log("Booking fetch error:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      getBooking();
+    }
+  }, [id]);
+
+  if (loading) {
+    return <div>Loading ticket...</div>;
+  }
+
+  if (!booking) {
+    return <div>Ticket not found</div>;
+  }
+
+  
   return (
    <>
    <UserHeader/>

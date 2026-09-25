@@ -26,11 +26,6 @@ function UserHeader() {
             </Link>
           </li>
           <li>
-            <Link href="/user/map" className={path==="/user/map" ? "active":""}>
-              Live Map
-            </Link>
-          </li>
-          <li>
             <Link href="/user/about" className={path==="/user/about" ? "active":""}>
               About
             </Link>

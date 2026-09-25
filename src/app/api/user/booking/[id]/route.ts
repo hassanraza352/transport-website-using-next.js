@@ -34,17 +34,17 @@ export async function GET(req:Request,{params}:{params:Promise<{id:string}>}){
       },
     {status:400})
   }
-  const BOOKING=await Booking.findById(id).populate(
-    {
-        path: "trip",
-        populate:[
-            { path: "bus" },
-      { path: "route" },
-      { path: "driver" }
-        ]
-    }
-    
-  ).populate("user");
+const BOOKING = await Booking.findOne({
+  _id: id,
+  user: session.user.id
+}).populate({
+  path: "trip",
+  populate: [
+    { path: "bus" },
+    { path: "route" },
+    { path: "driver" }
+  ]
+}).populate("user");
   if(!BOOKING){
      return NextResponse.json({
         message:"booking not found",
@@ -55,7 +55,7 @@ export async function GET(req:Request,{params}:{params:Promise<{id:string}>}){
   }
 
   return NextResponse.json({
-    message:"booking crreated successfully",
+    message:"booking fetched successfully",
     success:true,
     data:BOOKING
   },{
