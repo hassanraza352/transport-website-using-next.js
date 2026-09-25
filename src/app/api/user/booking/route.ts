@@ -3,6 +3,7 @@ import Booking from "@/models/Booking";
 import Bus from "@/models/Bus";
 import Trip from "@/models/trip";
 import User from "@/models/User";
+import Busroute from "@/models/BusRoutes";
 import { protect } from "@/utils/auth";
 import connect from "@/utils/db";
 import { NextResponse } from "next/server";

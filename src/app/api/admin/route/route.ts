@@ -13,7 +13,7 @@ export async function POST(req:Request){
     message:"fill all details",
     success:false
   },{
-    status:400
+    status:401
   }) }
     
 

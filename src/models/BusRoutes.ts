@@ -7,16 +7,19 @@ const busrouteSchema=new mongoose.Schema({
   },
    startLocation:{
     type:String,
-    required:true
+    required:true,
+    trim:true
   },
    endLocation:{
     type:String,
-    required:true
+    required:true,
+    trim:true
   },
 
     RouteDirection:{
        type:String,
-    required:true
+    required:true,
+    trim:true
   }
 
 },{

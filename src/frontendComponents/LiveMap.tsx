@@ -9,29 +9,49 @@ import {
   Popup,
   useMap,
 } from "react-leaflet";
-import L from "leaflet";
+
 import "leaflet/dist/leaflet.css";
-
-const lahore: [number, number] = [31.5204, 74.3587];
-const islamabad: [number, number] = [33.6844, 73.0479];
-
-const busIcon = L.icon({
-  iconUrl: "/bus-marker.png",
+import L from "leaflet";
+const startIcon = L.icon({
+  iconUrl: "/map/start.png",
   iconSize: [40, 40],
-  iconAnchor: [20, 20],
-  popupAnchor: [0, -20],
+  iconAnchor: [20, 40],
 });
+
+const viaIcon = L.icon({
+  iconUrl: "/map/via.png",
+  iconSize: [40, 40],
+  iconAnchor: [20, 40],
+});
+
+const destinationIcon = L.icon({
+  iconUrl: "/map/destination.png",
+  iconSize: [40, 40],
+  iconAnchor: [20, 40],
+});
+
+
+
+
+
+type Props = {
+  startLocation: string;
+  endLocation: string;
+  via: string;
+};
+
+type Coordinate = [number, number];
 
 function FitRoute({
   route,
 }: {
-  route: [number, number][];
+  route: Coordinate[];
 }) {
   const map = useMap();
 
   useEffect(() => {
     if (route.length > 0) {
-      map.fitBounds(route as L.LatLngBoundsExpression, {
+      map.fitBounds(route, {
         padding: [40, 40],
       });
     }
@@ -40,38 +60,227 @@ function FitRoute({
   return null;
 }
 
-export default function LiveMap() {
-  const [route, setRoute] = useState<[number, number][]>([]);
+export default function LiveMap({
+  startLocation,
+  endLocation,
+  via,
+}: Props) {
+  const [route, setRoute] = useState<Coordinate[]>([]);
+
+  const [startCoordinate, setStartCoordinate] =
+    useState<Coordinate | null>(null);
+
+  const [endCoordinate, setEndCoordinate] =
+    useState<Coordinate | null>(null);
+
+  const [viaCoordinate, setViaCoordinate] =
+    useState<Coordinate | null>(null);
+
   const [loading, setLoading] = useState(true);
+
+  const [error, setError] = useState("");
 
   useEffect(() => {
     const getRoute = async () => {
       try {
-        const response = await fetch(
-          `https://router.project-osrm.org/route/v1/driving/${lahore[1]},${lahore[0]};${islamabad[1]},${islamabad[0]}?overview=full&geometries=geojson`
+        setLoading(true);
+        setError("");
+
+        // -------------------------
+        // 1. START LOCATION
+        // -------------------------
+
+        const cleanStart = startLocation.trim();
+
+        const startResponse = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=pk&q=${encodeURIComponent(
+            cleanStart + ", Pakistan"
+          )}`
         );
 
-        const data = await response.json();
+        const startData = await startResponse.json();
 
-        if (data.code === "Ok") {
-          const coordinates = data.routes[0].geometry.coordinates;
-
-          const leafletCoordinates: [number, number][] =
-            coordinates.map(
-              ([lng, lat]: [number, number]) => [lat, lng]
-            );
-
-          setRoute(leafletCoordinates);
+        if (!startData.length) {
+          throw new Error(
+            `Start location "${cleanStart}" not found`
+          );
         }
+
+        const startLat = Number(startData[0].lat);
+        const startLon = Number(startData[0].lon);
+
+        const start: Coordinate = [
+          startLat,
+          startLon,
+        ];
+
+        setStartCoordinate(start);
+
+        // -------------------------
+        // 2. END LOCATION
+        // -------------------------
+
+        const cleanEnd = endLocation.trim();
+
+        const endResponse = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=pk&q=${encodeURIComponent(
+            cleanEnd + ", Pakistan"
+          )}`
+        );
+
+        const endData = await endResponse.json();
+
+        if (!endData.length) {
+          throw new Error(
+            `End location "${cleanEnd}" not found`
+          );
+        }
+
+        const endLat = Number(endData[0].lat);
+        const endLon = Number(endData[0].lon);
+
+        const end: Coordinate = [
+          endLat,
+          endLon,
+        ];
+
+        setEndCoordinate(end);
+
+        // -------------------------
+        // 3. VIA LOCATION
+        // -------------------------
+
+        const cleanVia = via.trim();
+
+        const viaResponse = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=pk&q=${encodeURIComponent(
+            cleanVia + ", Pakistan"
+          )}`
+        );
+
+        const viaData = await viaResponse.json();
+
+        if (!viaData.length) {
+          throw new Error(
+            `Via location "${cleanVia}" not found`
+          );
+        }
+
+        const viaLat = Number(viaData[0].lat);
+        const viaLon = Number(viaData[0].lon);
+
+        const viaPoint: Coordinate = [
+          viaLat,
+          viaLon,
+        ];
+
+        setViaCoordinate(viaPoint);
+
+        // -------------------------
+        // 4. OSRM ROUTE
+        // START → VIA → END
+        // -------------------------
+
+        const routeResponse = await fetch(
+          `https://router.project-osrm.org/route/v1/driving/${start[1]},${start[0]};${viaPoint[1]},${viaPoint[0]};${end[1]},${end[0]}?overview=full&geometries=geojson&steps=true`
+        );
+
+        const routeData = await routeResponse.json();
+
+        if (routeData.code !== "Ok") {
+          throw new Error("Road route not found");
+        }
+
+        const coordinates =
+          routeData.routes[0].geometry.coordinates;
+
+        const leafletCoordinates: Coordinate[] =
+          coordinates.map(
+            ([lng, lat]: [number, number]) => [
+              lat,
+              lng,
+            ]
+          );
+
+        setRoute(leafletCoordinates);
+
+        console.log("Route:", routeData);
+        console.log("Via:", cleanVia);
       } catch (error) {
-        console.error("Route error:", error);
+        console.error("Map error:", error);
+
+        setError(
+          error instanceof Error
+            ? error.message
+            : "Unable to load route"
+        );
       } finally {
         setLoading(false);
       }
     };
 
-    getRoute();
-  }, []);
+    if (
+      startLocation &&
+      endLocation &&
+      via
+    ) {
+      getRoute();
+    }
+  }, [
+    startLocation,
+    endLocation,
+    via,
+  ]);
+
+  // -------------------------
+  // LOADING
+  // -------------------------
+
+  if (loading) {
+    return (
+      <div
+        style={{
+          height: "100%",
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#0d1527",
+          color: "#fff",
+        }}
+      >
+        Loading route...
+      </div>
+    );
+  }
+
+  // -------------------------
+  // ERROR
+  // -------------------------
+
+  if (error) {
+    return (
+      <div
+        style={{
+          height: "100%",
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#0d1527",
+          color: "#fff",
+          padding: "20px",
+          textAlign: "center",
+        }}
+      >
+        {error}
+      </div>
+    );
+  }
+
+  // -------------------------
+  // MAP
+  // -------------------------
 
   return (
     <div
@@ -80,82 +289,96 @@ export default function LiveMap() {
         width: "100%",
         borderRadius: "12px",
         overflow: "hidden",
+        position: "relative",
       }}
     >
-      <MapContainer
-        center={lahore}
-        zoom={7}
-        style={{
-          height: "100%",
-          width: "100%",
-        }}
-      >
-        <TileLayer
-          attribution='&copy; OpenStreetMap contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-
-        {route.length > 0 && (
-          <>
-            <Polyline
-              positions={route}
-              pathOptions={{
-                color: "#FF8A24",
-                weight: 5,
-              }}
+      {startCoordinate &&
+        endCoordinate && (
+          <MapContainer
+            center={startCoordinate}
+            zoom={7}
+            style={{
+              height: "100%",
+              width: "100%",
+            }}
+          >
+            <TileLayer
+              attribution="&copy; OpenStreetMap contributors"
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
 
-            <FitRoute route={route} />
-          </>
+            {/* ROUTE */}
+
+            {route.length > 0 && (
+              <>
+                <Polyline
+                  positions={route}
+                  pathOptions={{
+                    color: "#FF8A24",
+                    weight: 5,
+                  }}
+                />
+
+                <FitRoute
+                  route={route}
+                />
+              </>
+            )}
+
+            {/* START */}
+
+           <Marker
+  position={startCoordinate}
+  icon={startIcon}
+>
+              <Popup>
+                <strong>
+                  {startLocation}
+                </strong>
+
+                <br />
+
+                Starting Point
+              </Popup>
+            </Marker>
+
+            {/* VIA */}
+
+            {viaCoordinate && (
+             <Marker
+  position={viaCoordinate}
+  icon={viaIcon}
+>
+                <Popup>
+                  <strong>
+                    {via}
+                  </strong>
+
+                  <br />
+
+                  Via Point
+                </Popup>
+              </Marker>
+            )}
+
+            {/* END */}
+
+            <Marker
+              position={endCoordinate}
+              icon={destinationIcon}
+            >
+              <Popup>
+                <strong>
+                  {endLocation}
+                </strong>
+
+                <br />
+
+                Destination
+              </Popup>
+            </Marker>
+          </MapContainer>
         )}
-
-        <Marker position={lahore}>
-          <Popup>
-            <strong>Lahore</strong>
-            <br />
-            Starting Point
-          </Popup>
-        </Marker>
-
-        <Marker position={islamabad}>
-          <Popup>
-            <strong>Islamabad</strong>
-            <br />
-            Destination
-          </Popup>
-        </Marker>
-
-        {/* Temporary bus location */}
-        <Marker
-          position={[32.45, 73.72]}
-          icon={busIcon}
-        >
-          <Popup>
-            <strong>GoRide Bus</strong>
-            <br />
-            Lahore → Islamabad
-            <br />
-            Currently on route
-          </Popup>
-        </Marker>
-      </MapContainer>
-
-      {loading && (
-        <div
-          style={{
-            position: "absolute",
-            top: "20px",
-            left: "20px",
-            zIndex: 1000,
-            background: "rgba(13,21,39,0.9)",
-            color: "#fff",
-            padding: "10px 15px",
-            borderRadius: "8px",
-          }}
-        >
-          Loading route...
-        </div>
-      )}
     </div>
   );
 }

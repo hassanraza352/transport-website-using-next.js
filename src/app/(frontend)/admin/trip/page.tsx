@@ -364,14 +364,11 @@ useEffect(() => {
             {busRoutes?.map((route)=>{
               return (
                    <option value={route?.Routename} key={route?._id}>
-               {route?.Routename}
+               {route?.Routename}-{route?.RouteDirection}
             </option>
               )
             })}
-
-
           </select>
-
         </div>
          <div className="form-group">
           <label className="form-label">

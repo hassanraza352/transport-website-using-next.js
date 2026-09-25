@@ -288,7 +288,7 @@ GetAllTips();
                   </h3>
 
                   <span className="badge badge-confirmed">
-                    {trip?.route?.Routename}
+                    {trip?.route?.Routename}-{trip?.route?.RouteDirection}
                   </span>
                 </div>
 

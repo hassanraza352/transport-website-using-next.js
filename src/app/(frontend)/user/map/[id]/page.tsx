@@ -1,8 +1,40 @@
-import LiveMap from '@/frontendComponents/LiveMap'
-import UserHeader from '@/frontendComponents/UserHeader'
-import React from 'react'
+"use client";
+
+import LiveMapWrapper from "@/frontendComponents/LiveMapWrapper";
+import UserHeader from "@/frontendComponents/UserHeader";
+import api from "@/utilsFrontend/axios";
+import { useParams } from "next/navigation";
+import React, { useEffect, useState } from "react";
+
 
 function Map() {
+
+
+  const params = useParams();
+  const id = params.id as string;
+
+  const [booking, setBooking] = useState<any>(null);
+
+  useEffect(() => {
+    const getBooking = async () => {
+      try {
+        const response = await api.get(`/user/booking/${id}`);
+
+        if (response.status === 200) {
+          setBooking(response.data.data);
+          console.log("Booking:", response.data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching booking:", error);
+      }
+    };
+
+    if (id) {
+      getBooking();
+    }
+  }, [id]);
+
+  
   
   return (
     <>
@@ -32,7 +64,7 @@ function Map() {
             }}
           >
             <a
-              href="/user/search"
+              href="/user/profile"
               style={{ color: "var(--text-muted)" }}
             >
               <i className="fa-solid fa-arrow-left"></i> Back to
@@ -48,9 +80,9 @@ function Map() {
               marginBottom: "1rem",
             }}
           >
-            Lahore{" "}
+            {booking?.trip?.route?.startLocation}{" "}
             <span style={{ color: "var(--primary)" }}>→</span>{" "}
-            Islamabad
+             {booking?.trip?.route?.endLocation}
           </h1>
 
           {/* City Stops Timeline Bar */}
@@ -212,7 +244,15 @@ function Map() {
             position: "relative",
           }}
         >
-        <LiveMap />
+      {booking && (
+  <LiveMapWrapper
+    startLocation={booking.trip.route.startLocation}
+    endLocation={booking.trip.route.endLocation}
+     via={
+      booking.trip.route.RouteDirection
+    }
+  />
+)}
 
           {/* Floating Legend Panel */}
           <div
@@ -409,47 +449,6 @@ function Map() {
             </div>
           </div>
 
-          {/* Proceed to Seat Selection */}
-          <div
-            className="card"
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              justifyContent: "center",
-              alignItems: "center",
-              textAlign: "center",
-            }}
-          >
-            <h3
-              style={{
-                fontSize: "1.2rem",
-                fontWeight: 700,
-                marginBottom: "0.5rem",
-                color: "#fff",
-              }}
-            >
-              Ready to Travel?
-            </h3>
-
-            <p
-              style={{
-                color: "var(--text-muted)",
-                fontSize: "0.85rem",
-                marginBottom: "1rem",
-              }}
-            >
-              Select your seat now to reserve your journey.
-            </p>
-
-            <a
-              href="/user/seat-selection"
-              className="btn btn-primary"
-              style={{ width: "100%" }}
-            >
-              Proceed to Seat Selection{" "}
-              <i className="fa-solid fa-arrow-right"></i>
-            </a>
-          </div>
         </div>
       </div>
     </main>

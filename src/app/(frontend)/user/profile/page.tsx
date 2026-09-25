@@ -3,6 +3,7 @@
 import UserHeader from '@/frontendComponents/UserHeader'
 import api from '@/utilsFrontend/axios';
 import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 import React, { useEffect, useState } from 'react'
 
 function Profile() {
@@ -176,200 +177,137 @@ console.log("bookings",bookings)
         gap: "1.25rem",
       }}
     >
-
-      {/* Booking Card 1 */}
-      <div
-        className="card"
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "1rem",
-        }}
-      >
-        <div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-              marginBottom: "0.5rem",
-            }}
-          >
-            <span
-              style={{
-                fontWeight: 800,
-                color: "var(--primary)",
-                fontSize: "1.1rem",
-              }}
-            >
-              GR-829451
-            </span>
-
-            <span className="badge badge-confirmed">
-              Confirmed &bull; Upcoming
-            </span>
-          </div>
-
-          <h3
-            style={{
-              fontSize: "1.25rem",
-              fontWeight: 700,
-              color: "#fff",
-            }}
-          >
-            Lahore → Islamabad
-          </h3>
-
-          <div
-            style={{
-              fontSize: "0.85rem",
-              color: "var(--text-muted)",
-              marginTop: "4px",
-              display: "flex",
-              gap: "1.5rem",
-              flexWrap: "wrap",
-            }}
-          >
-            <span>
-              <i className="fa-regular fa-calendar"></i> 20 Sep 2025
-            </span>
-
-            <span>
-              <i className="fa-regular fa-clock"></i> 10:30 AM - 03:30 PM
-            </span>
-
-            <span>
-              <i className="fa-solid fa-couch"></i> Seat 12A
-            </span>
-
-            <span>
-              <i className="fa-solid fa-bus"></i> GoRide Express
-            </span>
-          </div>
-        </div>
-
+    {bookings.map((booking) => {
+  return (
+    <div
+      key={booking._id}
+      className="card"
+      style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        flexWrap: "wrap",
+        gap: "1rem",
+      }}
+    >
+      <div>
+        {/* Booking ID + Status */}
         <div
           style={{
             display: "flex",
-            gap: "10px",
             alignItems: "center",
+            gap: "10px",
+            marginBottom: "0.5rem",
+          }}
+        >
+          <span
+            style={{
+              fontWeight: 800,
+              color: "var(--primary)",
+              fontSize: "1.1rem",
+            }}
+          >
+            #{booking._id.slice(-7)}
+          </span>
+
+          <span className="badge badge-confirmed">
+            Confirmed &bull; Upcoming
+          </span>
+        </div>
+
+        {/* Route */}
+        <h3
+          style={{
+            fontSize: "1.25rem",
+            fontWeight: 700,
+            color: "#fff",
+          }}
+        >
+          {booking?.trip?.route?.startLocation} →{" "}
+          {booking?.trip?.route?.endLocation}
+        </h3>
+
+        {/* Trip Info */}
+        <div
+          style={{
+            fontSize: "0.85rem",
+            color: "var(--text-muted)",
+            marginTop: "4px",
+            display: "flex",
+            gap: "1.5rem",
             flexWrap: "wrap",
           }}
         >
-          <a
-            href="/user/booking-details"
-            className="btn btn-outline btn-sm"
-          >
-            <i className="fa-solid fa-circle-info"></i> Full Details
-          </a>
+          {/* Date */}
+          <span>
+            <i className="fa-regular fa-calendar"></i>{" "}
+{new Date(booking?.trip?.departureDate).toLocaleDateString("en-GB", {
+  day: "2-digit",
+  month: "short",
+  year: "numeric",
+})}
 
-          <a
-            href="/user/ticket"
-            className="btn btn-primary btn-sm"
-          >
-            <i className="fa-solid fa-ticket"></i> Digital Ticket
-          </a>
+          </span>
 
-          <a
-            href="/user/route-map"
-            className="btn btn-secondary btn-sm"
-          >
-            <i className="fa-solid fa-location-dot"></i> Live Track
-          </a>
+          {/* Time */}
+          <span>
+            <i className="fa-regular fa-clock"></i>{" "}
+            {booking?.trip?.departureTime} -{" "}
+            {booking?.trip?.arrivalTime}
+          </span>
+
+          {/* Seats */}
+          <span>
+            <i className="fa-solid fa-couch"></i>{" "}
+            Seat {booking?.seatNumber?.join(", ")}
+          </span>
+
+          {/* Bus */}
+          <span>
+            <i className="fa-solid fa-bus"></i>{" "}
+            {booking?.trip?.bus?.busModel}
+          </span>
         </div>
       </div>
 
-      {/* Booking Card 2 */}
+      {/* Buttons */}
       <div
-        className="card"
         style={{
           display: "flex",
-          justifyContent: "space-between",
+          gap: "10px",
           alignItems: "center",
           flexWrap: "wrap",
-          gap: "1rem",
         }}
       >
-        <div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-              marginBottom: "0.5rem",
-            }}
-          >
-            <span
-              style={{
-                fontWeight: 800,
-                color: "var(--text-muted)",
-                fontSize: "1.1rem",
-              }}
-            >
-              GR-812004
-            </span>
-
-            <span className="badge badge-active">
-              Completed
-            </span>
-          </div>
-
-          <h3
-            style={{
-              fontSize: "1.25rem",
-              fontWeight: 700,
-              color: "#fff",
-            }}
-          >
-            Karachi → Lahore
-          </h3>
-
-          <div
-            style={{
-              fontSize: "0.85rem",
-              color: "var(--text-muted)",
-              marginTop: "4px",
-              display: "flex",
-              gap: "1.5rem",
-              flexWrap: "wrap",
-            }}
-          >
-            <span>
-              <i className="fa-regular fa-calendar"></i> 14 Aug 2025
-            </span>
-
-            <span>
-              <i className="fa-regular fa-clock"></i> 04:00 PM - 08:20 AM
-            </span>
-
-            <span>
-              <i className="fa-solid fa-couch"></i> Seat 4B
-            </span>
-
-            <span>
-              <i className="fa-solid fa-bus"></i> Daewoo Gold
-            </span>
-          </div>
-        </div>
-
-        <div
-          style={{
-            display: "flex",
-            gap: "10px",
-            alignItems: "center",
-          }}
+        <Link
+          href={`/user/booking-details/${booking._id}`}
+          className="btn btn-outline btn-sm"
         >
-          <a
-            href="/user/booking-details"
-            className="btn btn-secondary btn-sm"
-          >
-            <i className="fa-solid fa-receipt"></i>{" "}
-            View Details & Receipt
-          </a>
-        </div>
+          <i className="fa-solid fa-circle-info"></i> Full Details
+        </Link>
+
+        <Link
+          href={`/user/ticket/${booking._id}`}
+          className="btn btn-primary btn-sm"
+        >
+          <i className="fa-solid fa-ticket"></i> Digital Ticket
+        </Link>
+
+        <Link
+          href={`/user/map/${booking._id}`}
+          className="btn btn-secondary btn-sm"
+        >
+          <i className="fa-solid fa-location-dot"></i> Live Track
+        </Link>
       </div>
+    </div>
+  );
+})}
+
+      {/* Booking Card 1 */}
+    
+
+ 
 
     </div>
   </div>
