@@ -12,6 +12,7 @@ import {
 
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
+
 const startIcon = L.icon({
   iconUrl: "/map/start.png",
   iconSize: [40, 40],
@@ -30,9 +31,11 @@ const destinationIcon = L.icon({
   iconAnchor: [20, 40],
 });
 
-
-
-
+const currentLocationIcon = L.icon({
+  iconUrl: "/map/current-location.png",
+  iconSize: [45, 45],
+  iconAnchor: [22, 22],
+});
 
 type Props = {
   startLocation: string;
@@ -76,9 +79,17 @@ export default function LiveMap({
   const [viaCoordinate, setViaCoordinate] =
     useState<Coordinate | null>(null);
 
+  // Current user location
+  const [currentLocation, setCurrentLocation] =
+    useState<Coordinate | null>(null);
+
   const [loading, setLoading] = useState(true);
 
   const [error, setError] = useState("");
+
+  // --------------------------------
+  // GET ROUTE
+  // --------------------------------
 
   useEffect(() => {
     const getRoute = async () => {
@@ -232,9 +243,61 @@ export default function LiveMap({
     via,
   ]);
 
-  // -------------------------
+  // --------------------------------
+  // LIVE CURRENT LOCATION
+  // --------------------------------
+
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      console.log(
+        "Geolocation is not supported by this browser."
+      );
+      return;
+    }
+
+    const watchId =
+      navigator.geolocation.watchPosition(
+        (position) => {
+          const latitude =
+            position.coords.latitude;
+
+          const longitude =
+            position.coords.longitude;
+
+          setCurrentLocation([
+            latitude,
+            longitude,
+          ]);
+
+          console.log(
+            "Current location:",
+            latitude,
+            longitude
+          );
+        },
+        (error) => {
+          console.log(
+            "Location error:",
+            error.message
+          );
+        },
+        {
+          enableHighAccuracy: true,
+          maximumAge: 5000,
+          timeout: 10000,
+        }
+      );
+
+    return () => {
+      navigator.geolocation.clearWatch(
+        watchId
+      );
+    };
+  }, []);
+
+  // --------------------------------
   // LOADING
-  // -------------------------
+  // --------------------------------
 
   if (loading) {
     return (
@@ -254,9 +317,9 @@ export default function LiveMap({
     );
   }
 
-  // -------------------------
+  // --------------------------------
   // ERROR
-  // -------------------------
+  // --------------------------------
 
   if (error) {
     return (
@@ -278,9 +341,9 @@ export default function LiveMap({
     );
   }
 
-  // -------------------------
+  // --------------------------------
   // MAP
-  // -------------------------
+  // --------------------------------
 
   return (
     <div
@@ -319,18 +382,16 @@ export default function LiveMap({
                   }}
                 />
 
-                <FitRoute
-                  route={route}
-                />
+                <FitRoute route={route} />
               </>
             )}
 
             {/* START */}
 
-           <Marker
-  position={startCoordinate}
-  icon={startIcon}
->
+            <Marker
+              position={startCoordinate}
+              icon={startIcon}
+            >
               <Popup>
                 <strong>
                   {startLocation}
@@ -345,10 +406,10 @@ export default function LiveMap({
             {/* VIA */}
 
             {viaCoordinate && (
-             <Marker
-  position={viaCoordinate}
-  icon={viaIcon}
->
+              <Marker
+                position={viaCoordinate}
+                icon={viaIcon}
+              >
                 <Popup>
                   <strong>
                     {via}
@@ -361,7 +422,7 @@ export default function LiveMap({
               </Marker>
             )}
 
-            {/* END */}
+            {/* DESTINATION */}
 
             <Marker
               position={endCoordinate}
@@ -377,6 +438,25 @@ export default function LiveMap({
                 Destination
               </Popup>
             </Marker>
+
+            {/* CURRENT USER LOCATION */}
+
+            {currentLocation && (
+              <Marker
+                position={currentLocation}
+                icon={currentLocationIcon}
+              >
+                <Popup>
+                  <strong>
+                    Your Current Location
+                  </strong>
+
+                  <br />
+
+                  You are here
+                </Popup>
+              </Marker>
+            )}
           </MapContainer>
         )}
     </div>
