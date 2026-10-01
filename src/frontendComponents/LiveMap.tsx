@@ -60,7 +60,7 @@ function FitRoute({
   }, [route, map]);
 
   return null;
-}
+} 
 
 export default function LiveMap({
   startLocation,

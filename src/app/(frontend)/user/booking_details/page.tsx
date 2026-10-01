@@ -1,3 +1,5 @@
+'use client'
+
 import UserHeader from '@/frontendComponents/UserHeader'
 import api from '@/utilsFrontend/axios';
 import { useParams } from 'next/navigation';

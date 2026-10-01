@@ -4,8 +4,6 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import User from "@/models/User";
 
-
-
 export const authOptions:NextAuthOptions={
   providers:[
      CredentialsProvider({
@@ -33,12 +31,14 @@ export const authOptions:NextAuthOptions={
        const user = await User.findOne({
           email: credentials.email,
         });
+          if (!user) {
+          throw new Error("Invalid email or password");
+        }
+        
   if (user.role !== credentials.loginRole) {
   throw new Error("Invalid login credentials");
 }
-        if (!user) {
-          throw new Error("Invalid email or password");
-        }
+      
 
         const isPasswordCorrect = await bcrypt.compare(
           credentials.password,
@@ -60,6 +60,8 @@ export const authOptions:NextAuthOptions={
 
      })
   ],
+
+  
   session:{
 strategy:"jwt",
  maxAge: 7 * 24 * 60 * 60,
@@ -87,9 +89,6 @@ strategy:"jwt",
       return session;
     },
   },
-
-
-
   pages:{
  signIn: "/user/login",
   },

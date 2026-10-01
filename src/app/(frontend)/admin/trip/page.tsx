@@ -28,14 +28,14 @@ type Driver = {
   phoneNO:string
 }
 type Trip = {
-  _id:string,
+  _id: string;
   departureDate: string;
   arrivalTime: string;
   departureTime: string;
   fare: number;
-  driver: string;
-  bus: string;
-  route: string;
+  driver: Driver;
+  bus: Bus;
+  route: Routes;
 };
 
 function Trip() {

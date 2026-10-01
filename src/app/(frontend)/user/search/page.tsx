@@ -3,6 +3,14 @@ import UserHeader from '@/frontendComponents/UserHeader'
 import api from '@/utilsFrontend/axios';
 import React, { useEffect, useState } from 'react'
 
+type Bus = {
+  _id:string
+  registrationNumber:string,
+  busModel:string,
+  totalSeat:number,
+  coachType:string
+}
+
 type Routes = {
   _id: string;
   Routename: string;
@@ -10,15 +18,24 @@ type Routes = {
   endLocation: string;
   RouteDirection: string;
 };
+
+type Driver = {
+  _id:string
+  name:string,
+  cnicNO:string,
+  LicenseNO:string,
+  profilePic:string,
+  phoneNO:string
+}
 type Trip = {
-  _id:string,
+  _id: string;
   departureDate: string;
   arrivalTime: string;
   departureTime: string;
   fare: number;
-  driver: string;
-  bus: string;
-  route: string;
+  driver: Driver;
+  bus: Bus;
+  route: Routes;
 };
 
 function Search() {
